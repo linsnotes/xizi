@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>E-Calligraphy (Multiple Characters)</title>
+
+  <link rel="icon" type="image/png" href="favicon-32x32.png" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .navbar {
+      background-color: azure;
+      overflow: hidden;
+      padding: 0 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .navbar a {
+      color: black;
+      text-decoration: none;
+      font-size: 16px;
+      padding: 14px 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar img {
+      height: auto;
+      max-height: 30px;
+      margin-right: 5px;
+    }
+
+    .navbar img.favicon {
+      margin-right: auto;
+      margin-left: 10px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+    }
+
+    h1#page-title {
+      margin-top: 20px;
+    }
+
+    /* Container for the grid of 50 boxes */
+    .character-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr); /* 10 boxes per row */
+      gap: 10px;
+      width: 90%;
+      max-width: 800px;
+      margin: 20px auto;
+    }
+
+    /* Each box for one HanziWriter */
+    .character-box {
+      position: relative;
+      width: 70px;
+      height: 70px;
+      border: 1px solid #000;
+      margin: 0 auto;
+    }
+
+    #character-input {
+      font-size: 1em;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      width: 80%;
+      max-width: 600px;
+    }
+
+    #character-input:focus {
+      outline: none;
+      border-color: #337ab7;
+      box-shadow: 0 0 5px #337ab7;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      font-size: 1em;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+    }
+
+    #animate-button {
+      background-color: #4caf50; /* green */
+    }
+
+    #quiz-button {
+      background-color: #2196f3; /* blue */
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    #log-messages {
+      width: 80%;
+      max-width: 600px;
+      margin: 0 auto 40px;
+      text-align: left;
+    }
+
+    .log-error {
+      color: red;
+    }
+    .log-success {
+      color: green;
+    }
+    .log-info {
+      color: blue;
+    }
+
+    footer {
+      margin-top: 30px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <div class="navbar">
+    <a href="https://www.linsnotes.com">
+      <img src="android-chrome-512x512.png" alt="Website Icon" />
+    </a>
+    <div class="nav-right">
+      <a href="https://www.linsnotes.com/apps" target="_blank">APPS</a>
+      <a href="https://github.com/linsnotes" target="_blank">
+        <img
+          src="https://github.githubassets.com/favicons/favicon.png"
+          alt="GitHub Icon"
+        />
+        GitHub
+      </a>
+    </div>
+  </div>
+
+  <h1 id="page-title">Stroke by Stroke: Unveil the Beauty of Chinese Calligraphy!</h1>
+  <input
+    type="text"
+    id="character-input"
+    placeholder="Enter a Chinese sentence (up to 50 chars after punctuation removal)"
+  />
+  <div class="button-container">
+    <button id="animate-button">Animate All</button>
+    <button id="quiz-button">Quiz All</button>
+  </div>
+
+  <!-- Grid Container for up to 50 Hanzi boxes -->
+  <div class="character-grid" id="character-grid"></div>
+
+  <div id="log-messages"></div>
+
+  <footer>
+    <p>
+      Built using
+      <a href="https://hanziwriter.org/" target="_blank">HanziWriter</a>
+    </p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+  <script>
+    // We will store multiple HanziWriter instances in an array.
+    let writers = [];
+    const characterGrid = document.getElementById('character-grid');
+    const logArea = document.getElementById('log-messages');
+    const defaultTitle = "Stroke by Stroke: Unveil the Beauty of Chinese Calligraphy!";
+
+    // Simple function to remove punctuation (Chinese & English) from input
+    // and keep only Chinese characters if you prefer strictly Chinese.
+    function removePunctuation(str) {
+      // The following pattern removes common punctuation.
+      // Adjust or expand as needed.
+      return str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？！，。；：“”‘’、…]/g, '');
+    }
+
+    // Function to display log messages
+    function displayLog(message, type) {
+      const newMessage = document.createElement('div');
+      newMessage.textContent = message;
+      if (type === 'error') newMessage.className = 'log-error';
+      else if (type === 'success') newMessage.className = 'log-success';
+      else newMessage.className = 'log-info';
+
+      // Insert new messages on top
+      if (logArea.firstChild) {
+        logArea.insertBefore(newMessage, logArea.firstChild);
+      } else {
+        logArea.appendChild(newMessage);
+      }
+
+      // Keep only latest 6 messages
+      while (logArea.childNodes.length > 6) {
+        logArea.removeChild(logArea.lastChild);
+      }
+    }
+
+    // Create HanziWriter for each character
+    function createWritersFromText(text) {
+      // Clear any existing boxes/writers
+      characterGrid.innerHTML = '';
+      writers = [];
+
+      const maxChars = 100;
+      // Remove punctuation
+      const cleaned = removePunctuation(text);
+      // Take up to 50 chars
+      const finalText = cleaned.slice(0, maxChars);
+
+      // Update heading if we actually have characters
+      const title = document.getElementById('page-title');
+      if (finalText.length > 0) {
+        title.innerText = "Stroke Order for: " + finalText;
+      } else {
+        title.innerText = defaultTitle;
+      }
+
+      // Create a box + writer for each character
+      for (let i = 0; i < finalText.length; i++) {
+        const char = finalText[i];
+
+        // Create a box div
+        const boxDiv = document.createElement('div');
+        boxDiv.className = 'character-box';
+        boxDiv.id = 'character-box-' + i;
+        characterGrid.appendChild(boxDiv);
+
+        // Create a new HanziWriter instance
+        const writer = HanziWriter.create(boxDiv.id, char, {
+          width: 70,
+          height: 70,
+          padding: 2,
+          showOutline: true,
+          strokeAnimationSpeed: 1,
+          delayBetweenStrokes: 10,
+          radicalColor: '#FF00FF'
+        });
+
+        writers.push(writer);
+      }
+
+      // If less than 50 chars, fill empty boxes (optional)
+      // so that the grid is always 5x10 visually
+      for (let j = finalText.length; j < maxChars; j++) {
+        const emptyBox = document.createElement('div');
+        emptyBox.className = 'character-box';
+        // no ID, no writer
+        characterGrid.appendChild(emptyBox);
+      }
+    }
+
+
+    // Animate all characters one by one
+    document.getElementById('animate-button').addEventListener('click', function() {
+        if (writers.length === 0) {
+            displayLog("No characters to animate. Enter text first!", 'error');
+            return;
+        }
+
+        displayLog("Starting sequential animation!", 'info');
+
+        let currentIndex = 0;
+
+        // Function to animate characters one by one
+        function animateNext() {
+            if (currentIndex >= writers.length) {
+                displayLog("All characters animated!", 'success');
+                return; // Stop when all characters are done
+            }
+
+            const writer = writers[currentIndex];
+            writer.animateCharacter({
+                onComplete: function() {
+                    currentIndex++;
+                    animateNext(); // Move to the next character after the current one finishes
+                },
+            });
+        }
+
+        animateNext(); // Start the first animation
+    });
+
+
+
+
+
+
+
+
+
+    // Quiz all characters
+    document.getElementById('quiz-button').addEventListener('click', function() {
+      if (writers.length === 0) {
+        displayLog("No characters to quiz. Enter text first!", 'error');
+        return;
+      }
+      displayLog("Starting quiz mode for all characters. Good luck!", 'info');
+
+      writers.forEach((writer, idx) => {
+        writer.quiz({
+          onMistake: function(strokeData) {
+            displayLog(
+              `Char #${idx + 1}: Mistake on stroke ${strokeData.strokeNum + 1}`,
+              'error'
+            );
+          },
+          onCorrectStroke: function(strokeData) {
+            displayLog(
+              `Char #${idx + 1}: Correct stroke ${strokeData.strokeNum + 1}`,
+              'success'
+            );
+          },
+          onComplete: function(summaryData) {
+            displayLog(
+              `Char #${idx + 1} completed with ${summaryData.totalMistakes} mistakes`,
+              'info'
+            );
+          }
+        });
+      });
+    });
+
+    // Listen for user input changes to build the grid
+    document.getElementById('character-input').addEventListener('input', function() {
+      const userText = this.value.trim();
+      createWritersFromText(userText);
+    });
+  </script>
+</body>
+</html>
