@@ -75,40 +75,41 @@
       margin: 20px auto;
     }
 
-    /* Narrow screens (example: smaller than 375px) - 4 columns */
-    @media (max-width: 374px) {
-      .character-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
+    /* iPhone 13 Mini - 4 columns */
+    @media (max-width: 375px) {
+        .character-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
     }
 
-    /* Typical phone sizes (375px to 767px) - 5 columns */
-    @media (min-width: 375px) and (max-width: 767px) {
-      .character-grid {
-        grid-template-columns: repeat(5, 1fr);
-      }
+    /* iPad Mini - 6 columns */
+    @media (min-width: 376px) and (max-width: 768px) {
+        .character-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
     }
 
-    /* Tablet sizes (768px to 1023px) - 8 columns */
-    @media (min-width: 768px) and (max-width: 1023px) {
-      .character-grid {
-        grid-template-columns: repeat(8, 1fr);
-      }
+    /* Larger tablets (e.g., 768px to 1023px) - 8 columns */
+    @media (min-width: 769px) and (max-width: 1023px) {
+        .character-grid {
+            grid-template-columns: repeat(8, 1fr);
+        }
     }
 
     /* Medium/large tablet (1024px to 1365px) - 10 columns */
     @media (min-width: 1024px) and (max-width: 1365px) {
-      .character-grid {
-        grid-template-columns: repeat(10, 1fr);
-      }
+        .character-grid {
+            grid-template-columns: repeat(10, 1fr);
+        }
     }
 
     /* Larger screens (1366px and up) - 15 columns */
     @media (min-width: 1366px) {
-      .character-grid {
-        grid-template-columns: repeat(15, 1fr);
-      }
+        .character-grid {
+            grid-template-columns: repeat(15, 1fr);
+        }
     }
+
 
     /* Each box for one HanziWriter */
     .character-box {
