@@ -52,16 +52,62 @@
 
     h1#page-title {
       margin-top: 20px;
-    }
-
-    /* Container for the grid of 50 boxes */
-    .character-grid {
-      display: grid;
-      grid-template-columns: repeat(10, 1fr); /* 10 boxes per row */
-      gap: 10px;
+      margin-left: auto;
+      margin-right: auto;
       width: 90%;
       max-width: 800px;
+      word-wrap: break-word;
+      word-break: break-all;
+    }
+
+    /* 
+      Character grid:
+      1) Use auto-fill with minmax to make it flexible by default.
+      2) Use media queries to force certain column counts for specific screen widths.
+    */
+    .character-grid {
+      display: grid;
+      /* By default, fill as many 70px min columns as possible */
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 10px;
+      width: 90%;
+      max-width: 90vw;
       margin: 20px auto;
+    }
+
+    /* Narrow screens (example: smaller than 375px) - 4 columns */
+    @media (max-width: 374px) {
+      .character-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    /* Typical phone sizes (375px to 767px) - 5 columns */
+    @media (min-width: 375px) and (max-width: 767px) {
+      .character-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    /* Tablet sizes (768px to 1023px) - 8 columns */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .character-grid {
+        grid-template-columns: repeat(8, 1fr);
+      }
+    }
+
+    /* Medium/large tablet (1024px to 1365px) - 10 columns */
+    @media (min-width: 1024px) and (max-width: 1365px) {
+      .character-grid {
+        grid-template-columns: repeat(10, 1fr);
+      }
+    }
+
+    /* Larger screens (1366px and up) - 15 columns */
+    @media (min-width: 1366px) {
+      .character-grid {
+        grid-template-columns: repeat(15, 1fr);
+      }
     }
 
     /* Each box for one HanziWriter */
@@ -170,7 +216,7 @@
     <button id="quiz-button">Quiz All</button>
   </div>
 
-  <!-- Grid Container for up to 50 Hanzi boxes -->
+  <!-- Grid Container for up to 100 Hanzi boxes -->
   <div class="character-grid" id="character-grid"></div>
 
   <div id="log-messages"></div>
@@ -192,11 +238,14 @@
 
     // Simple function to remove punctuation (Chinese & English) from input
     // and keep only Chinese characters if you prefer strictly Chinese.
-    function removePunctuation(str) {
-      // The following pattern removes common punctuation.
-      // Adjust or expand as needed.
-      return str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？！，。；：“”‘’、…]/g, '');
+    // Function to remove punctuation and spaces from input
+    function removePunctuationAndSpaces(str) {
+        // Remove numbers and English letters
+        str = str.replace(/[A-Za-z0-9]/g, '');
+        // The pattern removes common punctuation and spaces (including tabs and newlines)
+        return str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？！，。；：“”‘’、…\s]/g, '');
     }
+
 
     // Function to display log messages
     function displayLog(message, type) {
@@ -227,19 +276,23 @@
 
       const maxChars = 100;
       // Remove punctuation
-      const cleaned = removePunctuation(text);
-      // Take up to 50 chars
+      const cleaned = removePunctuationAndSpaces(text);
+      // Take up to 100 chars
       const finalText = cleaned.slice(0, maxChars);
 
-      // Update heading if we actually have characters
+      // Update heading (limit to 4 chars if user enters 5 or more)
       const title = document.getElementById('page-title');
       if (finalText.length > 0) {
-        title.innerText = "Stroke Order for: " + finalText;
+        const displayTitle = 
+          (finalText.length <= 4) 
+            ? finalText 
+            : finalText.slice(0, 4) + '...';
+        title.innerText = "Stroke Order for: " + displayTitle;
       } else {
         title.innerText = defaultTitle;
       }
 
-      // Create a box + writer for each character
+      // Create a box + writer for each actual character
       for (let i = 0; i < finalText.length; i++) {
         const char = finalText[i];
 
@@ -263,54 +316,45 @@
         writers.push(writer);
       }
 
-      // If less than 50 chars, fill empty boxes (optional)
-      // so that the grid is always 5x10 visually
+      // If you want to fill empty boxes up to 100, uncomment below:
+      /*
       for (let j = finalText.length; j < maxChars; j++) {
         const emptyBox = document.createElement('div');
         emptyBox.className = 'character-box';
-        // no ID, no writer
         characterGrid.appendChild(emptyBox);
       }
+      */
     }
-
 
     // Animate all characters one by one
     document.getElementById('animate-button').addEventListener('click', function() {
-        if (writers.length === 0) {
-            displayLog("No characters to animate. Enter text first!", 'error');
-            return;
+      if (writers.length === 0) {
+        displayLog("No characters to animate. Enter text first!", 'error');
+        return;
+      }
+
+      displayLog("Starting sequential animation!", 'info');
+
+      let currentIndex = 0;
+
+      // Function to animate characters one by one
+      function animateNext() {
+        if (currentIndex >= writers.length) {
+          displayLog("All characters animated!", 'success');
+          return; // Stop when all characters are done
         }
 
-        displayLog("Starting sequential animation!", 'info');
+        const writer = writers[currentIndex];
+        writer.animateCharacter({
+          onComplete: function() {
+            currentIndex++;
+            animateNext(); // Move to the next character after the current finishes
+          },
+        });
+      }
 
-        let currentIndex = 0;
-
-        // Function to animate characters one by one
-        function animateNext() {
-            if (currentIndex >= writers.length) {
-                displayLog("All characters animated!", 'success');
-                return; // Stop when all characters are done
-            }
-
-            const writer = writers[currentIndex];
-            writer.animateCharacter({
-                onComplete: function() {
-                    currentIndex++;
-                    animateNext(); // Move to the next character after the current one finishes
-                },
-            });
-        }
-
-        animateNext(); // Start the first animation
+      animateNext(); // Start the first animation
     });
-
-
-
-
-
-
-
-
 
     // Quiz all characters
     document.getElementById('quiz-button').addEventListener('click', function() {
