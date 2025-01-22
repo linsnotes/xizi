@@ -180,10 +180,17 @@
         }
     }
 
-    /* 393px to 767px - 6 columns (covers 393px wide devices) */
-    @media (min-width: 393px) and (max-width: 767px) {
+    /* 393px to 700px - 6 columns (covers 393px wide devices) */
+    @media (min-width: 393px) and (max-width: 700px) {
         .character-grid {
             grid-template-columns: repeat(6, 1fr);
+        }
+    }
+
+    /* 701px to 767px - 6 columns (covers 701px wide devices) */
+    @media (min-width: 701px) and (max-width: 767px) {
+        .character-grid {
+            grid-template-columns: repeat(7, 1fr);
         }
     }
 
