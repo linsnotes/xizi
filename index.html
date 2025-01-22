@@ -158,7 +158,7 @@
     }
 
     #print-button {
-      background-color: #212121; /* grey */
+      background-color: #212121; /* dark */
     }
 
     button:hover {
@@ -207,7 +207,7 @@
     </a>
     <div class="nav-right">
       <a href="https://www.linsnotes.com/apps" target="_blank">APPS</a>
-      <a href="https://github.com/linsnotes" target="_blank">
+      <a href="https://github.com/linsnotes/xizi" target="_blank">
         <img
           src="https://github.githubassets.com/favicons/favicon.png"
           alt="GitHub Icon"
@@ -224,19 +224,15 @@
     placeholder="Enter or paste Chinese text. Use 'k' for a new line and 'b' for an empty box."
   />
   <div class="button-container">
-    <!-- Combined "Start" and "Previous" into one button -->
     <button id="start-button">Start</button>
     <button id="next-button">Next</button>
     <button id="stop-resume-button">Stop</button>
     <button id="animate-button">Animate All</button>
     <button id="quiz-button">Quiz Mode</button>
-    
-    <!-- CHANGE: Added Print Mode Button -->
     <button id="print-button">Print Mode</button>
-    <!-- END CHANGE -->
   </div>
 
-  <!-- Grid Container for up to 100 Hanzi boxes -->
+  <!-- Grid Container for up to 1000 Hanzi boxes -->
   <div class="character-grid" id="character-grid"></div>
 
   <div id="log-messages"></div>
@@ -257,13 +253,13 @@
     let currentIndex = 0;
     let isPaused = false;
 
-    // CHANGE: Add a global flag to stop all animations
-    let stopAll = false; // CHANGE
+    // Add a global flag to stop all animations
+    let stopAll = false;
 
-    // CHANGE: We'll store the text used for "Animate All" so we can revert
-    let lastAnimateAllText = ""; // CHANGE
+    // Store the text used for "Animate All" so we can revert
+    let lastAnimateAllText = ""; 
 
-    // CHANGE: Updated function to keep 'b' and 'k' while removing other English letters
+    // Keep 'b' and 'k' while removing other English letters
     function removePunctuationAndSpaces(str) {
       // 1) Remove digits
       str = str.replace(/[0-9]/g, '');
@@ -277,11 +273,10 @@
         }
       });
 
-      // 3) Remove punctuation and spaces (unchanged)
+      // 3) Remove punctuation and spaces
       // return str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？！，。；：“”‘’、…\s]/g, '');
       return str.replace(/[\u3000-\u303F\uFF00-\uFFEF\p{P}\p{S}\s]/gu, '');
     }
-    // END CHANGE
 
     function displayLog(message, type) {
       const newMessage = document.createElement('div');
@@ -301,13 +296,13 @@
       }
     }
 
-    // CHANGE: Adjust to handle 'b' and 'k'
+    // Adjust to handle 'b' and 'k'
     // b => empty box
     // k => new line
     function createWritersFromText(text) {
       characterGrid.innerHTML = '';
       writers = [];
-
+      // Max Chinese Character
       const maxChars = 1000;
       const cleaned = removePunctuationAndSpaces(text);
       const finalText = cleaned.slice(0, maxChars);
@@ -326,7 +321,7 @@
       for (let i = 0; i < finalText.length; i++) {
         const char = finalText[i];
 
-        // NEW LOGIC: handle special placeholders
+        // Handle special placeholders
         if (char === 'k') {
           // Force new row in the grid:
           const lineBreakDiv = document.createElement('div');
