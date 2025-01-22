@@ -60,41 +60,6 @@
       margin: 20px auto;
     }
 
-    /* iPhone 13 Mini - 4 columns */
-    @media (max-width: 375px) {
-      .character-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    /* iPad Mini - 6 columns */
-    @media (min-width: 393px) and (max-width: 768px) {
-      .character-grid {
-        grid-template-columns: repeat(6, 1fr);
-      }
-    }
-
-    /* Larger tablets (e.g., 768px to 1023px) - 8 columns */
-    @media (min-width: 769px) and (max-width: 1023px) {
-      .character-grid {
-        grid-template-columns: repeat(8, 1fr);
-      }
-    }
-
-    /* Medium/large tablet (1024px to 1365px) - 10 columns */
-    @media (min-width: 1024px) and (max-width: 1365px) {
-      .character-grid {
-        grid-template-columns: repeat(10, 1fr);
-      }
-    }
-
-    /* Larger screens (1366px and up) - 15 columns */
-    @media (min-width: 1366px) {
-      .character-grid {
-        grid-template-columns: repeat(15, 1fr);
-      }
-    }
-
     .character-box {
       position: relative;
       width: 70px;
@@ -175,9 +140,11 @@
     .log-error {
       color: red;
     }
+    
     .log-success {
       color: green;
     }
+    
     .log-info {
       color: blue;
     }
@@ -188,6 +155,7 @@
       text-align: center;
       color: #333;
     }
+    
     #visitor-counter #pageviews {
       font-weight: bold;
       color: #000;
@@ -196,6 +164,48 @@
     footer {
       margin-top: 30px;
       margin-bottom: 20px;
+    }
+    
+    /* 375 x 812 (or smaller) - 4 columns */
+    @media (max-width: 375px) {
+        .character-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    /* 376px to 392px - also 4 columns (covers widths like 390px) */
+    @media (min-width: 376px) and (max-width: 392px) {
+        .character-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    /* 393px to 767px - 6 columns (covers 393px wide devices) */
+    @media (min-width: 393px) and (max-width: 767px) {
+        .character-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
+    }
+
+    /* 768px to 809px - 8 columns (covers 768px wide) */
+    @media (min-width: 768px) and (max-width: 809px) {
+        .character-grid {
+            grid-template-columns: repeat(8, 1fr);
+        }
+    }
+
+    /* 810px to 1365px - 10 columns (covers 810px wide) */
+    @media (min-width: 810px) and (max-width: 1365px) {
+        .character-grid {
+            grid-template-columns: repeat(10, 1fr);
+        }
+    }
+
+    /* Larger screens (1366px and up) - 15 columns */
+    @media (min-width: 1366px) {
+        .character-grid {
+            grid-template-columns: repeat(15, 1fr);
+        }
     }
   </style>
 </head>
