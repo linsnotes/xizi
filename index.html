@@ -6,7 +6,7 @@
   <title>学而时习之</title>
 
   <link rel="icon" type="image/png" href="favicon-32x32.png" />
-
+  <script data-goatcounter="https://linsnotes.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -181,6 +181,17 @@
       color: blue;
     }
 
+    #visitor-counter {
+      font-size: 1em;
+      margin: 20px 0;
+      text-align: center;
+      color: #333;
+    }
+    #visitor-counter #pageviews {
+      font-weight: bold;
+      color: #000;
+    }
+
     footer {
       margin-top: 30px;
       margin-bottom: 20px;
@@ -228,6 +239,10 @@
   <div class="character-grid" id="character-grid"></div>
 
   <div id="log-messages"></div>
+
+  <div id="visitor-counter">
+    Welcome! You’re visitor #<span id="pageviews">Loading...</span> 
+  </div>
 
   <footer>
     <p>
@@ -575,6 +590,24 @@
         document.querySelector('footer').style.display = '';
 
         this.textContent = 'Print Mode';
+      }
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+      const pv = document.getElementById('pageviews');
+
+      if (pv !== null) {
+        const uri = location.pathname.replace(/\/$/, '');
+        const url = `https://linsnotes.goatcounter.com/counter/${encodeURIComponent(uri)}.json`;
+
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            const count = data.count.replace(/\s/g, '');
+            pv.innerText = new Intl.NumberFormat().format(count);
+          })
+          .catch((error) => {
+            pv.innerText = '1';
+          });
       }
     });
   </script>
