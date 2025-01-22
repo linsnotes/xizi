@@ -50,14 +50,8 @@
       align-items: center;
     }
 
-    /* 
-      Character grid:
-      1) Use auto-fill with minmax to make it flexible by default.
-      2) Use media queries to force certain column counts for specific screen widths.
-    */
     .character-grid {
       display: grid;
-      /* By default, fill as many 70px min columns as possible */
       grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
       gap: 10px;
       width: 90%;
@@ -67,41 +61,39 @@
 
     /* iPhone 13 Mini - 4 columns */
     @media (max-width: 375px) {
-        .character-grid {
-            grid-template-columns: repeat(4, 1fr);
-        }
+      .character-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
     }
 
     /* iPad Mini - 6 columns */
     @media (min-width: 391px) and (max-width: 768px) {
-        .character-grid {
-            grid-template-columns: repeat(6, 1fr);
-        }
+      .character-grid {
+        grid-template-columns: repeat(6, 1fr);
+      }
     }
 
     /* Larger tablets (e.g., 768px to 1023px) - 8 columns */
     @media (min-width: 769px) and (max-width: 1023px) {
-        .character-grid {
-            grid-template-columns: repeat(8, 1fr);
-        }
+      .character-grid {
+        grid-template-columns: repeat(8, 1fr);
+      }
     }
 
     /* Medium/large tablet (1024px to 1365px) - 10 columns */
     @media (min-width: 1024px) and (max-width: 1365px) {
-        .character-grid {
-            grid-template-columns: repeat(10, 1fr);
-        }
+      .character-grid {
+        grid-template-columns: repeat(10, 1fr);
+      }
     }
 
     /* Larger screens (1366px and up) - 15 columns */
     @media (min-width: 1366px) {
-        .character-grid {
-            grid-template-columns: repeat(15, 1fr);
-        }
+      .character-grid {
+        grid-template-columns: repeat(15, 1fr);
+      }
     }
 
-
-    /* Each box for one HanziWriter */
     .character-box {
       position: relative;
       width: 70px;
@@ -132,6 +124,7 @@
       justify-content: center;
       gap: 10px;
       margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
     button {
@@ -143,8 +136,20 @@
       color: white;
     }
 
-    #animate-button {
+    #start-button {
       background-color: #4caf50; /* green */
+    }
+
+    #next-button {
+      background-color: #4caf50; /* green */
+    }
+
+    #stop-resume-button {
+      background-color: #9c27b0; /* purple */
+    }
+
+    #animate-button {
+      background-color: #f0ad4e; /* orange */
     }
 
     #quiz-button {
@@ -203,8 +208,16 @@
     placeholder="Enter of paste Chinese text"
   />
   <div class="button-container">
+    <!-- Combined "Start" and "Previous" into one button -->
+    <button id="start-button">Start</button>
+    <button id="next-button">Next</button>
+    <button id="stop-resume-button">Stop</button>
     <button id="animate-button">Animate All</button>
-    <button id="quiz-button">Quiz All</button>
+    <button id="quiz-button">Quiz Mode</button>
+    
+    <!-- CHANGE: Added Print Mode Button -->
+    <button id="print-button">Print Mode</button>
+    <!-- END CHANGE -->
   </div>
 
   <!-- Grid Container for up to 100 Hanzi boxes -->
@@ -221,24 +234,27 @@
 
   <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
   <script>
-    // We will store multiple HanziWriter instances in an array.
     let writers = [];
     const characterGrid = document.getElementById('character-grid');
     const logArea = document.getElementById('log-messages');
     const defaultTitle = "Stroke by Stroke: Unveil the Beauty of Chinese Calligraphy!";
 
-    // Simple function to remove punctuation (Chinese & English) from input
-    // and keep only Chinese characters if you prefer strictly Chinese.
-    // Function to remove punctuation and spaces from input
+    let currentIndex = 0;
+    let isPaused = false;
+
+    // CHANGE: Add a global flag to stop all animations
+    let stopAll = false; // CHANGE
+
+    // CHANGE: We'll store the text used for "Animate All" so we can revert
+    let lastAnimateAllText = ""; // CHANGE
+
     function removePunctuationAndSpaces(str) {
-        // Remove numbers and English letters
-        str = str.replace(/[A-Za-z0-9]/g, '');
-        // The pattern removes common punctuation and spaces (including tabs and newlines)
-        return str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？！，。；：“”‘’、…\s]/g, '');
+      // Remove numbers and English letters
+      str = str.replace(/[A-Za-z0-9]/g, '');
+      // Remove common punctuation and spaces
+      return str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？！，。；：“”‘’、…\s]/g, '');
     }
 
-
-    // Function to display log messages
     function displayLog(message, type) {
       const newMessage = document.createElement('div');
       newMessage.textContent = message;
@@ -246,54 +262,42 @@
       else if (type === 'success') newMessage.className = 'log-success';
       else newMessage.className = 'log-info';
 
-      // Insert new messages on top
       if (logArea.firstChild) {
         logArea.insertBefore(newMessage, logArea.firstChild);
       } else {
         logArea.appendChild(newMessage);
       }
 
-      // Keep only latest 6 messages
       while (logArea.childNodes.length > 6) {
         logArea.removeChild(logArea.lastChild);
       }
     }
 
-    // Create HanziWriter for each character
     function createWritersFromText(text) {
-      // Clear any existing boxes/writers
       characterGrid.innerHTML = '';
       writers = [];
 
-      const maxChars = 100;
-      // Remove punctuation
+      const maxChars = 1000;
       const cleaned = removePunctuationAndSpaces(text);
-      // Take up to 100 chars
       const finalText = cleaned.slice(0, maxChars);
 
-      // Update heading (limit to 4 chars if user enters 5 or more)
       const title = document.getElementById('page-title');
       if (finalText.length > 0) {
-        const displayTitle = 
-          (finalText.length <= 4) 
-            ? finalText 
-            : finalText.slice(0, 4) + '...';
+        const displayTitle = (finalText.length <= 4)
+          ? finalText
+          : finalText.slice(0, 4) + '...';
         title.innerText = "Stroke Order for: " + displayTitle;
       } else {
         title.innerText = defaultTitle;
       }
 
-      // Create a box + writer for each actual character
       for (let i = 0; i < finalText.length; i++) {
         const char = finalText[i];
-
-        // Create a box div
         const boxDiv = document.createElement('div');
         boxDiv.className = 'character-box';
         boxDiv.id = 'character-box-' + i;
         characterGrid.appendChild(boxDiv);
 
-        // Create a new HanziWriter instance
         const writer = HanziWriter.create(boxDiv.id, char, {
           width: 70,
           height: 70,
@@ -307,52 +311,72 @@
         writers.push(writer);
       }
 
-      // If you want to fill empty boxes up to 100, uncomment below:
-      /*
-      for (let j = finalText.length; j < maxChars; j++) {
-        const emptyBox = document.createElement('div');
-        emptyBox.className = 'character-box';
-        characterGrid.appendChild(emptyBox);
-      }
-      */
+      currentIndex = 0;
+      isPaused = false;
     }
 
-    // Animate all characters one by one
+    // CHANGE: Modify "Animate All" button logic to toggle between Animate and Stop
     document.getElementById('animate-button').addEventListener('click', function() {
-      if (writers.length === 0) {
-        displayLog("No characters to animate. Enter text first!", 'error');
-        return;
-      }
-
-      displayLog("Starting sequential animation!", 'info');
-
-      let currentIndex = 0;
-
-      // Function to animate characters one by one
-      function animateNext() {
-        if (currentIndex >= writers.length) {
-          displayLog("All characters animated!", 'success');
-          return; // Stop when all characters are done
+      if (this.textContent === 'Animate All') {
+        if (writers.length === 0) {
+          displayLog("No characters to animate. Enter text first!", 'error');
+          return;
         }
 
-        const writer = writers[currentIndex];
-        writer.animateCharacter({
-          onComplete: function() {
-            currentIndex++;
-            animateNext(); // Move to the next character after the current finishes
-          },
-        });
-      }
+        // Store the current text in case we need to revert
+        lastAnimateAllText = document.getElementById('character-input').value; 
+        stopAll = false; 
+        displayLog("Starting sequential animation!", 'info');
 
-      animateNext(); // Start the first animation
+        let currentIndexForAll = 0;
+
+        function animateNext() {
+          if (stopAll) {
+            displayLog("All animations stopped!", 'info'); 
+            return;
+          }
+          if (currentIndexForAll >= writers.length) {
+            displayLog("All characters animated!", 'success');
+            return;
+          }
+          const writer = writers[currentIndexForAll];
+          writer.animateCharacter({
+            onComplete: function() {
+              currentIndexForAll++;
+              animateNext();
+            },
+          });
+        }
+        animateNext();
+
+        // Toggle button text to "Stop All"
+        this.textContent = 'Stop All'; 
+      } else {
+        stopAll = true; 
+        displayLog("Stopping all animations and reverting to initial state.", 'info'); 
+        // Re-create the writers from the last text so they look unanimated
+        createWritersFromText(lastAnimateAllText); 
+
+        // Reset the button text to "Animate All"
+        this.textContent = 'Animate All'; 
+
+        // Also reset Start/Previous and Stop/Resume buttons
+        document.getElementById('start-button').textContent = 'Start'; 
+        document.getElementById('stop-resume-button').textContent = 'Stop'; 
+      }
     });
 
-    // Quiz all characters
+    // Quiz all
     document.getElementById('quiz-button').addEventListener('click', function() {
       if (writers.length === 0) {
         displayLog("No characters to quiz. Enter text first!", 'error');
         return;
       }
+
+      // Reset Start/Previous and Stop/Resume
+      document.getElementById('start-button').textContent = 'Start'; 
+      document.getElementById('stop-resume-button').textContent = 'Stop'; 
+
       displayLog("Starting quiz mode for all characters. Good luck!", 'info');
 
       writers.forEach((writer, idx) => {
@@ -379,11 +403,110 @@
       });
     });
 
-    // Listen for user input changes to build the grid
     document.getElementById('character-input').addEventListener('input', function() {
       const userText = this.value.trim();
       createWritersFromText(userText);
     });
+
+    function animateCurrent() {
+      if (!writers[currentIndex]) return;
+      writers[currentIndex].animateCharacter({
+        onComplete: function() {
+          displayLog(`Character #${currentIndex + 1} animation done.`, 'info');
+        }
+      });
+    }
+
+    // Start button (combined Start & Previous)
+    document.getElementById('start-button').addEventListener('click', function() {
+      if (this.textContent === 'Start') {
+        if (writers.length === 0) {
+          displayLog("No characters to animate. Enter text first!", 'error');
+          return;
+        }
+        currentIndex = 0;
+        isPaused = false;
+        displayLog("Starting from character #1", 'info');
+        animateCurrent();
+        this.textContent = 'Previous';
+      } else {
+        if (writers.length === 0) {
+          displayLog("No characters to animate. Enter text first!", 'error');
+          return;
+        }
+        currentIndex = Math.max(0, currentIndex - 1);
+        isPaused = false;
+        displayLog(`Moving to character #${currentIndex + 1}`, 'info');
+        animateCurrent();
+      }
+    });
+
+    // Next button
+    document.getElementById('next-button').addEventListener('click', function() {
+      if (writers.length === 0) {
+        displayLog("No characters to animate. Enter text first!", 'error');
+        return;
+      }
+      currentIndex = Math.min(writers.length - 1, currentIndex + 1);
+      isPaused = false;
+      displayLog(`Moving to character #${currentIndex + 1}`, 'info');
+      animateCurrent();
+    });
+
+    // "Stop/Resume" button
+    document.getElementById('stop-resume-button').addEventListener('click', function() {
+      if (!writers[currentIndex]) {
+        displayLog("No character selected to stop/resume.", 'error');
+        return;
+      }
+      if (!isPaused) {
+        writers[currentIndex].pauseAnimation();
+        displayLog("Stopped animation of current character.", 'info');
+        isPaused = true;
+        this.textContent = "Resume";
+      } else {
+        writers[currentIndex].resumeAnimation();
+        displayLog("Resumed animation of current character.", 'info');
+        isPaused = false;
+        this.textContent = "Stop";
+      }
+    });
+
+    // CHANGE: Print Mode toggle logic
+    let isPrintMode = false;
+    document.getElementById('print-button').addEventListener('click', function() {
+      isPrintMode = !isPrintMode;
+      if (isPrintMode) {
+        // Hide everything except #print-button and .character-grid
+        document.querySelector('.navbar').style.display = 'none';
+        document.getElementById('page-title').style.display = 'none';
+        document.getElementById('character-input').style.display = 'none';
+        document.getElementById('start-button').style.display = 'none';
+        document.getElementById('next-button').style.display = 'none';
+        document.getElementById('stop-resume-button').style.display = 'none';
+        document.getElementById('animate-button').style.display = 'none';
+        document.getElementById('quiz-button').style.display = 'none';
+        document.getElementById('log-messages').style.display = 'none';
+        document.querySelector('footer').style.display = 'none';
+
+        this.textContent = 'Exit Print Mode';
+      } else {
+        // Show everything again
+        document.querySelector('.navbar').style.display = '';
+        document.getElementById('page-title').style.display = '';
+        document.getElementById('character-input').style.display = '';
+        document.getElementById('start-button').style.display = '';
+        document.getElementById('next-button').style.display = '';
+        document.getElementById('stop-resume-button').style.display = '';
+        document.getElementById('animate-button').style.display = '';
+        document.getElementById('quiz-button').style.display = '';
+        document.getElementById('log-messages').style.display = '';
+        document.querySelector('footer').style.display = '';
+
+        this.textContent = 'Print Mode';
+      }
+    });
+    // END CHANGE
   </script>
 </body>
 </html>
