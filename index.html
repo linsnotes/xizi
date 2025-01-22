@@ -220,7 +220,7 @@
     <button id="quiz-button">Quiz Mode</button>
     
     <!-- CHANGE: Added Print Mode Button -->
-    <button id="print-button">Minimalist Print Mode</button>
+    <button id="print-button">Print Mode</button>
     <!-- END CHANGE -->
   </div>
 
@@ -560,7 +560,7 @@
         document.getElementById('log-messages').style.display = 'none';
         document.querySelector('footer').style.display = 'none';
 
-        this.textContent = 'Exit Minimalist Print Mode';
+        this.textContent = 'Exit Print Mode';
       } else {
         // Show everything again
         document.querySelector('.navbar').style.display = '';
@@ -574,7 +574,7 @@
         document.getElementById('log-messages').style.display = '';
         document.querySelector('footer').style.display = '';
 
-        this.textContent = 'Minimalist Print Mode';
+        this.textContent = 'Print Mode';
       }
     });
   </script>
