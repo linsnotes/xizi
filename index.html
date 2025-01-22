@@ -241,15 +241,10 @@
 
   <div id="log-messages"></div>
 
-  <div id="visitor-counter">
-    Welcome! You’re visitor #<span id="pageviews">Loading...</span> 
-  </div>
-
   <footer>
-    <p>
-      Built using
-      <a href="https://hanziwriter.org/" target="_blank">HanziWriter</a>
-    </p>
+    <div id="visitor-counter">
+      Welcome! You’re visitor #<span id="pageviews">Loading...</span> 
+    </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
@@ -574,7 +569,6 @@
         document.getElementById('animate-button').style.display = '';
         document.getElementById('quiz-button').style.display = '';
         document.getElementById('log-messages').style.display = 'none';
-        document.getElementById('visitor-counter').style.display = 'none';
         document.querySelector('footer').style.display = 'none';
 
         this.textContent = 'Exit Print Mode';
@@ -589,7 +583,6 @@
         document.getElementById('animate-button').style.display = '';
         document.getElementById('quiz-button').style.display = '';
         document.getElementById('log-messages').style.display = '';
-        document.getElementById('visitor-counter').style.display = '';
         document.querySelector('footer').style.display = '';
 
         this.textContent = 'Print Mode';
