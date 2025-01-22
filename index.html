@@ -248,12 +248,25 @@
     // CHANGE: We'll store the text used for "Animate All" so we can revert
     let lastAnimateAllText = ""; // CHANGE
 
+    // CHANGE: Updated function to keep 'b' and 'k' while removing other English letters
     function removePunctuationAndSpaces(str) {
-      // Remove numbers and English letters
-      str = str.replace(/[A-Za-z0-9]/g, '');
-      // Remove common punctuation and spaces
-      return str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？！，。；：“”‘’、…\s]/g, '');
+      // 1) Remove digits
+      str = str.replace(/[0-9]/g, '');
+
+      // 2) Remove all letters except 'b' and 'k'
+      str = str.replace(/[A-Za-z]/g, function(match) {
+        if (match === 'b' || match === 'k') {
+          return match; // keep these
+        } else {
+          return '';    // remove all other letters
+        }
+      });
+
+      // 3) Remove punctuation and spaces (unchanged)
+      // return str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？！，。；：“”‘’、…\s]/g, '');
+      return str.replace(/[\u3000-\u303F\uFF00-\uFFEF\p{P}\p{S}\s]/gu, '');
     }
+    // END CHANGE
 
     function displayLog(message, type) {
       const newMessage = document.createElement('div');
@@ -273,6 +286,9 @@
       }
     }
 
+    // CHANGE: Adjust to handle 'b' and 'k'
+    // b => empty box
+    // k => new line
     function createWritersFromText(text) {
       characterGrid.innerHTML = '';
       writers = [];
@@ -291,29 +307,55 @@
         title.innerText = defaultTitle;
       }
 
+      // Create a HanziWriter or special box for each character
       for (let i = 0; i < finalText.length; i++) {
         const char = finalText[i];
-        const boxDiv = document.createElement('div');
-        boxDiv.className = 'character-box';
-        boxDiv.id = 'character-box-' + i;
-        characterGrid.appendChild(boxDiv);
 
-        const writer = HanziWriter.create(boxDiv.id, char, {
-          width: 70,
-          height: 70,
-          padding: 2,
-          showOutline: true,
-          strokeAnimationSpeed: 1,
-          delayBetweenStrokes: 10,
-          radicalColor: '#FF00FF'
-        });
+        // NEW LOGIC: handle special placeholders
+        if (char === 'k') {
+          // Force new row in the grid:
+          const lineBreakDiv = document.createElement('div');
+          lineBreakDiv.style.gridColumn = '1 / -1'; 
+          lineBreakDiv.style.border = 'none';
+          lineBreakDiv.id = 'line-break-' + i;
+          characterGrid.appendChild(lineBreakDiv);
 
-        writers.push(writer);
+          // So that the rest of the code won't try to animate it
+          writers.push(null);
+        } else if (char === 'b') {
+          // Create an empty box with no HanziWriter
+          const emptyBox = document.createElement('div');
+          emptyBox.className = 'character-box';
+          emptyBox.id = 'empty-box-' + i;
+          characterGrid.appendChild(emptyBox);
+
+          // We do not create a writer for 'b'
+          writers.push(null);
+        } else {
+          // For Chinese characters, create a standard box and a HanziWriter
+          const boxDiv = document.createElement('div');
+          boxDiv.className = 'character-box';
+          boxDiv.id = 'character-box-' + i;
+          characterGrid.appendChild(boxDiv);
+
+          const writer = HanziWriter.create(boxDiv.id, char, {
+            width: 70,
+            height: 70,
+            padding: 2,
+            showOutline: true,
+            strokeAnimationSpeed: 1,
+            delayBetweenStrokes: 10,
+            radicalColor: '#FF00FF'
+          });
+
+          writers.push(writer);
+        }
       }
 
       currentIndex = 0;
       isPaused = false;
     }
+    // END CHANGE
 
     // CHANGE: Modify "Animate All" button logic to toggle between Animate and Stop
     document.getElementById('animate-button').addEventListener('click', function() {
@@ -324,21 +366,29 @@
         }
 
         // Store the current text in case we need to revert
-        lastAnimateAllText = document.getElementById('character-input').value; 
-        stopAll = false; 
+        lastAnimateAllText = document.getElementById('character-input').value;
+        stopAll = false;
         displayLog("Starting sequential animation!", 'info');
 
         let currentIndexForAll = 0;
 
         function animateNext() {
           if (stopAll) {
-            displayLog("All animations stopped!", 'info'); 
+            displayLog("All animations stopped!", 'info');
             return;
           }
           if (currentIndexForAll >= writers.length) {
             displayLog("All characters animated!", 'success');
             return;
           }
+
+          // Skip null writers (for 'b' and line breaks 'k')
+          if (!writers[currentIndexForAll]) {
+            currentIndexForAll++;
+            animateNext();
+            return;
+          }
+
           const writer = writers[currentIndexForAll];
           writer.animateCharacter({
             onComplete: function() {
@@ -350,19 +400,19 @@
         animateNext();
 
         // Toggle button text to "Stop All"
-        this.textContent = 'Stop All'; 
+        this.textContent = 'Stop All';
       } else {
-        stopAll = true; 
-        displayLog("Stopping all animations and reverting to initial state.", 'info'); 
+        stopAll = true;
+        displayLog("Stopping all animations and reverting to initial state.", 'info');
         // Re-create the writers from the last text so they look unanimated
-        createWritersFromText(lastAnimateAllText); 
+        createWritersFromText(lastAnimateAllText);
 
         // Reset the button text to "Animate All"
-        this.textContent = 'Animate All'; 
+        this.textContent = 'Animate All';
 
         // Also reset Start/Previous and Stop/Resume buttons
-        document.getElementById('start-button').textContent = 'Start'; 
-        document.getElementById('stop-resume-button').textContent = 'Stop'; 
+        document.getElementById('start-button').textContent = 'Start';
+        document.getElementById('stop-resume-button').textContent = 'Stop';
       }
     });
 
@@ -374,12 +424,13 @@
       }
 
       // Reset Start/Previous and Stop/Resume
-      document.getElementById('start-button').textContent = 'Start'; 
-      document.getElementById('stop-resume-button').textContent = 'Stop'; 
+      document.getElementById('start-button').textContent = 'Start';
+      document.getElementById('stop-resume-button').textContent = 'Stop';
 
       displayLog("Starting quiz mode for all characters. Good luck!", 'info');
 
       writers.forEach((writer, idx) => {
+        if (!writer) return; // skip 'b' or 'k'
         writer.quiz({
           onMistake: function(strokeData) {
             displayLog(
@@ -427,7 +478,11 @@
         currentIndex = 0;
         isPaused = false;
         displayLog("Starting from character #1", 'info');
-        animateCurrent();
+        // Skip null
+        while (writers[currentIndex] === null && currentIndex < writers.length) {
+          currentIndex++;
+        }
+        if (currentIndex < writers.length) animateCurrent();
         this.textContent = 'Previous';
       } else {
         if (writers.length === 0) {
@@ -435,9 +490,15 @@
           return;
         }
         currentIndex = Math.max(0, currentIndex - 1);
+        // Keep skipping any null writers
+        while (writers[currentIndex] === null && currentIndex > 0) {
+          currentIndex--;
+        }
         isPaused = false;
         displayLog(`Moving to character #${currentIndex + 1}`, 'info');
-        animateCurrent();
+        if (writers[currentIndex]) {
+          animateCurrent();
+        }
       }
     });
 
@@ -448,9 +509,15 @@
         return;
       }
       currentIndex = Math.min(writers.length - 1, currentIndex + 1);
+      // Keep skipping any null writers
+      while (writers[currentIndex] === null && currentIndex < writers.length - 1) {
+        currentIndex++;
+      }
       isPaused = false;
       displayLog(`Moving to character #${currentIndex + 1}`, 'info');
-      animateCurrent();
+      if (writers[currentIndex]) {
+        animateCurrent();
+      }
     });
 
     // "Stop/Resume" button
@@ -472,7 +539,7 @@
       }
     });
 
-    // CHANGE: Print Mode toggle logic
+    // Print Mode toggle logic
     let isPrintMode = false;
     document.getElementById('print-button').addEventListener('click', function() {
       isPrintMode = !isPrintMode;
@@ -481,11 +548,11 @@
         document.querySelector('.navbar').style.display = 'none';
         document.getElementById('page-title').style.display = 'none';
         document.getElementById('character-input').style.display = 'none';
-        document.getElementById('start-button').style.display = 'none';
-        document.getElementById('next-button').style.display = 'none';
-        document.getElementById('stop-resume-button').style.display = 'none';
-        document.getElementById('animate-button').style.display = 'none';
-        document.getElementById('quiz-button').style.display = 'none';
+        document.getElementById('start-button').style.display = '';
+        document.getElementById('next-button').style.display = '';
+        document.getElementById('stop-resume-button').style.display = '';
+        document.getElementById('animate-button').style.display = '';
+        document.getElementById('quiz-button').style.display = '';
         document.getElementById('log-messages').style.display = 'none';
         document.querySelector('footer').style.display = 'none';
 
@@ -506,7 +573,6 @@
         this.textContent = 'Print Mode';
       }
     });
-    // END CHANGE
   </script>
 </body>
 </html>
