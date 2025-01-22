@@ -156,6 +156,10 @@
       background-color: #2196f3; /* blue */
     }
 
+    #print-button {
+      background-color: #212121; /* grey */
+    }
+
     button:hover {
       opacity: 0.9;
     }
@@ -205,7 +209,7 @@
   <input
     type="text"
     id="character-input"
-    placeholder="Enter of paste Chinese text"
+    placeholder="Enter or paste Chinese text. Use 'k' for a new line and 'b' for an empty box."
   />
   <div class="button-container">
     <!-- Combined "Start" and "Previous" into one button -->
@@ -216,7 +220,7 @@
     <button id="quiz-button">Quiz Mode</button>
     
     <!-- CHANGE: Added Print Mode Button -->
-    <button id="print-button">Print Mode</button>
+    <button id="print-button">Minimalist Print Mode</button>
     <!-- END CHANGE -->
   </div>
 
@@ -556,7 +560,7 @@
         document.getElementById('log-messages').style.display = 'none';
         document.querySelector('footer').style.display = 'none';
 
-        this.textContent = 'Exit Print Mode';
+        this.textContent = 'Exit Minimalist Print Mode';
       } else {
         // Show everything again
         document.querySelector('.navbar').style.display = '';
@@ -570,7 +574,7 @@
         document.getElementById('log-messages').style.display = '';
         document.querySelector('footer').style.display = '';
 
-        this.textContent = 'Print Mode';
+        this.textContent = 'Minimalist Print Mode';
       }
     });
   </script>
