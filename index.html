@@ -63,11 +63,11 @@
 
     .character-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
       gap: 10px;
       width: 90%;
       max-width: 90vw;
       margin: 20px auto;
+      grid-template-columns: repeat(calc(4 + (70 - var(--char-size)) / 5), 1fr); /* Adjust dynamically */
     }
 
     .character-box {
@@ -136,6 +136,10 @@
       background-color: #212121; /* dark */
     }
 
+    #refresh-button {
+      background-color: #4caf50; /* green */
+    }
+
     button:hover {
       opacity: 0.9;
     }
@@ -175,55 +179,81 @@
       margin-top: 30px;
       margin-bottom: 20px;
     }
+
+
+    #settings-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    #settings-container label {
+        margin-right: 5px;
+        font-size: 0.9em;
+    }
+
+    #settings-container input {
+        padding: 5px;
+        font-size: 0.9em;
+        width: auto;
+    }
+
     
+    :root {
+        --char-size: 70; /* Initial character size */
+    }
+
     /* 375 x 812 (or smaller) - 4 columns */
     @media (max-width: 375px) {
         .character-grid {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(calc(4 + (70 - var(--char-size)) / 5), 1fr);
         }
     }
 
     /* 376px to 392px - also 4 columns (covers widths like 390px) */
     @media (min-width: 376px) and (max-width: 392px) {
         .character-grid {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(calc(4 + (70 - var(--char-size)) / 5), 1fr);
         }
     }
 
     /* 393px to 700px - 6 columns (covers 393px wide devices) */
     @media (min-width: 393px) and (max-width: 700px) {
         .character-grid {
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(calc(6 + (70 - var(--char-size)) / 5), 1fr);
         }
     }
 
-    /* 701px to 767px - 6 columns (covers 701px wide devices) */
+    /* 701px to 767px - 7 columns (covers 701px wide devices) */
     @media (min-width: 701px) and (max-width: 767px) {
         .character-grid {
-            grid-template-columns: repeat(7, 1fr);
+            grid-template-columns: repeat(calc(7 + (70 - var(--char-size)) / 5), 1fr);
         }
     }
 
     /* 768px to 809px - 8 columns (covers 768px wide) */
     @media (min-width: 768px) and (max-width: 809px) {
         .character-grid {
-            grid-template-columns: repeat(8, 1fr);
+            grid-template-columns: repeat(calc(8 + (70 - var(--char-size)) / 5), 1fr);
         }
     }
 
     /* 810px to 1365px - 10 columns (covers 810px wide) */
     @media (min-width: 810px) and (max-width: 1365px) {
         .character-grid {
-            grid-template-columns: repeat(10, 1fr);
+            grid-template-columns: repeat(calc(10 + (70 - var(--char-size)) / 5), 1fr);
         }
     }
 
     /* Larger screens (1366px and up) - 15 columns */
     @media (min-width: 1366px) {
         .character-grid {
-            grid-template-columns: repeat(15, 1fr);
+            grid-template-columns: repeat(calc(15 + (70 - var(--char-size)) / 5), 1fr);
         }
     }
+
 
 
     /* Print-specific styles for A4 size paper */
@@ -291,9 +321,32 @@
       <button id="animate-button">Animate All</button>
       <button id="quiz-button">Quiz Mode</button>
       <button id="print-button">Print Mode</button>
+      <button id="refresh-button">Refresh</button>
     </div>
   </div>
   <!-- END ADDED WRAPPER -->
+
+    <div id="settings-container">
+        <label for="charSize">Size:</label>
+        <input type="number" id="charSize" value="70" min="10" max="80" />
+
+        <label for="padding">Padding:</label>
+        <input type="number" id="padding" value="2" min="0" max="20" />
+
+        <label for="strokeSpeed">Stroke Animation Speed:</label>
+        <input type="number" id="strokeSpeed" value="1" step="0.1" min="0.1" max="10" />
+
+        <label for="delay">Delay Between Strokes:</label>
+        <input type="number" id="delay" value="10" min="0" max="100" />
+
+        <label for="color">Radical Color:</label>
+        <input type="color" id="color" value="#FF00FF" />
+
+        <label for="printColumns">Print Columns:</label>
+        <input type="number" id="printColumns" value="8" min="8" max="15" />
+    </div>
+
+
 
   <!-- Grid Container for up to 1000 Hanzi boxes -->
   <div class="character-grid" id="character-grid"></div>
@@ -400,7 +453,15 @@
           const emptyBox = document.createElement('div');
           emptyBox.className = 'character-box';
           emptyBox.id = 'empty-box-' + i;
+
+          // Set dynamic size based on charSize input
+          const charSize = parseInt(document.getElementById('charSize').value, 10);
+          emptyBox.style.width = `${charSize}px`;
+          emptyBox.style.height = `${charSize}px`;
+
           characterGrid.appendChild(emptyBox);
+
+
 
           // We do not create a writer for 'b'
           writers.push(null);
@@ -409,17 +470,20 @@
           const boxDiv = document.createElement('div');
           boxDiv.className = 'character-box';
           boxDiv.id = 'character-box-' + i;
+          boxDiv.style.width = `${parseInt(document.getElementById('charSize').value, 10)}px`;
+          boxDiv.style.height = `${parseInt(document.getElementById('charSize').value, 10)}px`;
           characterGrid.appendChild(boxDiv);
 
           const writer = HanziWriter.create(boxDiv.id, char, {
-            width: 70,
-            height: 70,
-            padding: 2,
+            width: parseInt(document.getElementById('charSize').value, 10),
+            height: parseInt(document.getElementById('charSize').value, 10),
+            padding: parseInt(document.getElementById('padding').value, 10),
             showOutline: true,
-            strokeAnimationSpeed: 1,
-            delayBetweenStrokes: 10,
-            radicalColor: '#FF00FF'
+            strokeAnimationSpeed: parseFloat(document.getElementById('strokeSpeed').value),
+            delayBetweenStrokes: parseInt(document.getElementById('delay').value, 10),
+            radicalColor: document.getElementById('color').value
           });
+
 
           writers.push(writer);
         }
@@ -624,6 +688,7 @@
         document.getElementById('stop-resume-button').style.display = '';
         document.getElementById('animate-button').style.display = '';
         document.getElementById('quiz-button').style.display = '';
+        document.getElementById('settings-container').style.display = 'none';
         document.getElementById('log-messages').style.display = 'none';
         document.querySelector('footer').style.display = 'none';
 
@@ -638,6 +703,7 @@
         document.getElementById('stop-resume-button').style.display = '';
         document.getElementById('animate-button').style.display = '';
         document.getElementById('quiz-button').style.display = '';
+        document.getElementById('settings-container').style.display = '';
         document.getElementById('log-messages').style.display = '';
         document.querySelector('footer').style.display = '';
 
@@ -662,6 +728,106 @@
           });
       }
     });
+
+    document.getElementById('refresh-button').addEventListener('click', function () {
+        const userText = document.getElementById('character-input').value.trim();
+        if (userText === '') {
+            displayLog("No text to refresh. Enter text first!", 'error');
+            return;
+        }
+
+        displayLog("Refreshing settings and redrawing characters...", 'info');
+        createWritersFromText(userText); // Recreate writers with the current settings
+    });
+
+
+    document.getElementById('charSize').addEventListener('input', function () {
+        const charSize = parseInt(this.value, 10); // Get the current charSize value
+        const userText = document.getElementById('character-input').value.trim(); // Get the current text input
+
+        // Update the --char-size CSS variable
+        document.documentElement.style.setProperty('--char-size', charSize);
+
+        if (userText === '') {
+            displayLog("No text to refresh. Enter text first!", 'error');
+            return;
+        }
+
+        // Map charSize to print columns
+        function getPrintColumns(charSize) {
+            if (charSize >= 66 && charSize <= 70) return 8;
+            if (charSize >= 64 && charSize <= 65) return 9;
+            if (charSize >= 56 && charSize <= 60) return 10;
+            if (charSize >= 51 && charSize <= 55) return 11;
+            if (charSize >= 43 && charSize <= 50) return 12;
+            if (charSize >= 41 && charSize <= 42) return 13;
+            if (charSize >= 34 && charSize <= 40) return 14;
+            if (charSize === 35) return 15;
+            return 8; // Default to 8 columns if size is outside range
+        }
+
+        const columns = getPrintColumns(charSize);
+
+        let style = document.getElementById('dynamic-print-style');
+        if (!style) {
+                style = document.createElement('style');
+                style.id = 'dynamic-print-style';
+                document.head.appendChild(style);
+        }
+        style.textContent = `
+                @media print {
+                        .character-grid {
+                                grid-template-columns: repeat(${columns}, 1fr);
+                        }
+                }
+        `;
+
+
+        displayLog(`CharSize changed to ${charSize}px. Print columns updated to ${columns}.`, 'info');
+
+        // Redraw the grid and characters
+        createWritersFromText(userText);
+    });
+
+
+    document.getElementById('printColumns').addEventListener('input', function () {
+        const columns = parseInt(this.value, 10); // Get the number of columns
+        if (columns < 8 || columns > 15) {
+            displayLog("Print columns must be between 8 and 15.", 'error');
+            return;
+        }
+
+        // Remove any existing custom print style
+        const existingStyle = document.getElementById('dynamic-print-style');
+        if (existingStyle) {
+            existingStyle.remove();
+        }
+
+        // Create a new style element for custom print rules
+        const style = document.createElement('style');
+        style.id = 'dynamic-print-style';
+        style.textContent = `
+            @media print {
+                .character-grid {
+                    grid-template-columns: repeat(${columns}, 1fr);
+                }
+            }
+        `;
+
+        // Append the new style element to the document head
+        document.head.appendChild(style);
+
+        displayLog(`Print columns updated to ${columns}.`, 'info');
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const charSizeInput = document.getElementById('charSize'); // Get the charSize input element
+      const initialCharSize = parseInt(charSizeInput.value, 10); // Get its initial value
+      document.documentElement.style.setProperty('--char-size', initialCharSize); // Set the CSS variable
+    });
+
+
+
   </script>
 </body>
 </html>
