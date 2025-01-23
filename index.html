@@ -51,6 +51,16 @@
       align-items: center;
     }
 
+    /* ADDED FOR STICKY */
+    .sticky-container {
+      position: sticky; 
+      top: 0; 
+      z-index: 9999;
+      background-color: #fff; 
+      padding: 10px 0; 
+      /* You can adjust padding or background color as you wish */
+    }
+
     .character-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
@@ -214,6 +224,28 @@
             grid-template-columns: repeat(15, 1fr);
         }
     }
+
+
+    /* Print-specific styles for A4 size paper */
+    @media print {
+        /* Ensure the page size matches A4 with minimal margins */
+        @page {
+            size: A4;
+            margin: 10mm; /* Minimum margin (adjust as needed for printers) */
+        }
+
+        /* Force 8 columns for the grid */
+        .character-grid {
+            grid-template-columns: repeat(8, 1fr);
+        }
+
+        /* Optional: Reset margins/padding that may interfere */
+        body, html {
+            margin: 0;
+            padding: 0;
+        }
+    }
+
   </style>
 </head>
 <body>
@@ -235,19 +267,24 @@
   </div>
 
   <h1 id="page-title">Stroke by Stroke: the Beauty of Chinese Characters!</h1>
-  <input
-    type="text"
-    id="character-input"
-    placeholder="Enter or paste Chinese text. Use 'k' for a new line and 'b' for an empty box."
-  />
-  <div class="button-container">
-    <button id="start-button">Start</button>
-    <button id="next-button">Next</button>
-    <button id="stop-resume-button">Stop</button>
-    <button id="animate-button">Animate All</button>
-    <button id="quiz-button">Quiz Mode</button>
-    <button id="print-button">Print Mode</button>
+
+  <!-- ADDED THIS WRAPPER -->
+  <div class="sticky-container">
+    <input
+      type="text"
+      id="character-input"
+      placeholder="Enter or paste Chinese text. Use 'k' for a new line and 'b' for an empty box."
+    />
+    <div class="button-container">
+      <button id="start-button">Start</button>
+      <button id="next-button">Next</button>
+      <button id="stop-resume-button">Stop</button>
+      <button id="animate-button">Animate All</button>
+      <button id="quiz-button">Quiz Mode</button>
+      <button id="print-button">Print Mode</button>
+    </div>
   </div>
+  <!-- END ADDED WRAPPER -->
 
   <!-- Grid Container for up to 1000 Hanzi boxes -->
   <div class="character-grid" id="character-grid"></div>
@@ -382,9 +419,7 @@
       currentIndex = 0;
       isPaused = false;
     }
-    // END CHANGE
 
-    // CHANGE: Modify "Animate All" button logic to toggle between Animate and Stop
     document.getElementById('animate-button').addEventListener('click', function() {
       if (this.textContent === 'Animate All') {
         if (writers.length === 0) {
