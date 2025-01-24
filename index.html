@@ -309,21 +309,21 @@
     <div id="settings-container">
         <label for="charSize">Size:</label>
         <input type="number" id="charSize" value="70" min="10" max="80" />
-
+        <!--
         <label for="padding">Padding:</label>
-        <input type="number" id="padding" value="2" min="0" max="20" />
-
+        <input type="number" id="padding" value="2" min="0" max="20" />-->
+        <!--
         <label for="strokeSpeed">Stroke Animation Speed:</label>
-        <input type="number" id="strokeSpeed" value="1" step="0.1" min="0.1" max="10" />
-
+        <input type="number" id="strokeSpeed" value="1" step="0.1" min="0.1" max="10" />-->
+        <!--
         <label for="delay">Delay Between Strokes:</label>
-        <input type="number" id="delay" value="10" min="0" max="100" />
-
+        <input type="number" id="delay" value="10" min="0" max="100" />-->
+  
         <label for="color">Radical Color:</label>
         <input type="color" id="color" value="#FF00FF" />
-
+        <!--
         <label for="printColumns">Print Columns:</label>
-        <input type="number" id="printColumns" value="8" min="8" max="15" />
+        <input type="number" id="printColumns" value="8" min="8" max="15" />-->
     </div>
 
 
@@ -457,10 +457,10 @@
           const writer = HanziWriter.create(boxDiv.id, char, {
             width: parseInt(document.getElementById('charSize').value, 10),
             height: parseInt(document.getElementById('charSize').value, 10),
-            padding: parseInt(document.getElementById('padding').value, 10),
+            padding: 2,
             showOutline: true,
-            strokeAnimationSpeed: parseFloat(document.getElementById('strokeSpeed').value),
-            delayBetweenStrokes: parseInt(document.getElementById('delay').value, 10),
+            strokeAnimationSpeed: 1,
+            delayBetweenStrokes: 200,
             radicalColor: document.getElementById('color').value
           });
 
