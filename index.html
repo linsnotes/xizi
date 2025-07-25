@@ -399,6 +399,16 @@
                     min="8"
                     max="15"
                     style="display:none" />
+
+          
+            <label for="printColsSelect">Cols/line:</label>
+            <select id="printColsSelect">
+              <option value="8">8</option>
+              <option value="10">10</option>
+              <option value="12">12</option>
+              <option value="14">14</option>
+            </select>
+
         </div>
         <!-- NEW CONTAINER FOR EXIT PRINT BUTTON -->
         <div id="print-exit-container">
@@ -669,13 +679,14 @@
         updatePrintStyle(cols);
     });
 
+    /* 3‑C – respond when the user picks a value from the dropdown */
+    document.getElementById('printColsSelect').addEventListener('change', function () {
+      const cols = parseInt(this.value, 10);
+      updatePrintStyle(cols);                  // reuse the same helper
+    });
 
 
 
-
-
-
-    
     
     // --- UPDATED PRINT LOGIC ------------------------------------------------
     //  We now call window.print() automatically *only* when the script is not
