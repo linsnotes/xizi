@@ -172,6 +172,7 @@
     #animate-button { background-color: #f0ad4e; }
     #quiz-button { background-color: #2196f3; }
     #print-button { background-color: #212121; }
+    #print-dialog-button { background-color: #f0f8ff;}
     #back-button { background-color: #e74c3c; } 
 
     #settings-container {
@@ -383,6 +384,7 @@
           <button id="animate-button">Animate All</button>
           <button id="quiz-button">Quiz Mode</button>
           <button id="print-button">Full Page View</button>
+          <button id="print-dialog-button">Print</button>
           <button id="refresh-button">Refresh</button>
         </div>
         <div id="settings-container">
@@ -619,20 +621,18 @@
     //  original “Ctrl+P” hint instead.
     // -----------------------------------------------------------------------
     document.getElementById('print-button').addEventListener('click', () => {
-      const inTopWindow = window.top === window.self; // true = standalone page
-      document.body.classList.add('print-preview');
-
-      if (inTopWindow) {
-        // Stand‑alone (e.g. GitHub Pages) → open system print dialog
-        window.print();
-      } else {
-        // Still in Google Sites iframe → cannot print programmatically
-        displayLog("Use browser menu or Ctrl+P to print.", "info");
-      }
-
-      // Enter preview state (hides UI)
       document.body.classList.add('print-preview');
     });
+
+    document.getElementById('print-dialog-button').addEventListener('click', () => {
+      const inTopWindow = window.top === window.self;     // true = not inside Sites iframe
+      if (inTopWindow) {
+        window.print();                                   // GitHub Pages etc.
+      } else {
+        displayLog("Use browser menu or Ctrl+P to print.", "info");  // Google Sites
+      }
+    });
+
 
     document.getElementById('exit-print-button').addEventListener('click', () => {
         document.body.classList.remove('print-preview');
