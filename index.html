@@ -351,6 +351,15 @@
                 <option value="" disabled selected>-- Loading List --</option>
             </select>
         </div>
+
+
+        <div class="control-group">
+            <label for="customSheetId">Import from Custom Sheet ID:</label>
+            <input type="text" id="customSheetId" placeholder="paste Sheet ID here" />
+            <button id="loadCustomSheetButton" style="margin-top:8px;">Load</button>
+        </div>
+
+
         <div class="control-group hidden" id="builtInTextSelectGroup">
             <label for="builtInTextSelect">Select Text:</label>
             <select id="builtInTextSelect">
@@ -613,6 +622,42 @@
         populateTextDropdown(currentSheetContentData);
     });
 
+
+        /*  ------  Custom Sheet loader  ------  */
+    document.getElementById('loadCustomSheetButton')
+            .addEventListener('click', async () => {
+              const sheetId = document.getElementById('customSheetId').value.trim();
+              if (!sheetId) {
+                alert('Please paste a Sheet ID.');
+                return;
+              }
+
+              // clear any previous state
+              builtInTextSelect.innerHTML =
+                  '<option value="" disabled selected>-- Loading Texts... --</option>';
+              characterInput.value = '';
+
+              const data = await fetchAndParseContentSheet(sheetId);
+              if (!data || data.length === 0) {
+                alert('Could not read that sheet. Please ensure your sheet ID is correct.');
+                return;
+              }
+
+              currentSheetContentData = data;
+              populateTextDropdown(data);          // re‑uses existing dropdown
+              displayLog('Custom sheet loaded!', 'success');
+            });
+
+
+
+
+
+
+
+
+
+
+    
     builtInTextSelect.addEventListener("change", (event) => {
         const selectedIndex = parseInt(event.target.value, 10);
         if (!isNaN(selectedIndex) && currentSheetContentData[selectedIndex]) {
