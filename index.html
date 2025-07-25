@@ -392,6 +392,13 @@
             <input type="number" id="charSize" value="70" min="40" max="150" step="1" />
             <label for="color">Radical Color:</label>
             <input type="color" id="color" value="#FF00FF" />
+            <label for="printColumns" style="display:none">Print Cols:</label>
+            <input  type="number"
+                    id="printColumns"
+                    value="8"
+                    min="8"
+                    max="15"
+                    style="display:none" />
         </div>
         <!-- NEW CONTAINER FOR EXIT PRINT BUTTON -->
         <div id="print-exit-container">
@@ -613,6 +620,59 @@
     document.getElementById('color').addEventListener('input', () => {
         if (writers.length > 0) createWritersFromText(originalText);
     });
+
+    /* ---------- DYNAMIC PRINT‑COLUMN HELPER & LISTENERS ---------- */
+
+    // Map charSize → preferred column count (same logic GitHub version used)
+    function getPrintColumnsFromSize(charSize) {
+        if (charSize >= 66 && charSize <= 70) return 8;
+        if (charSize >= 64 && charSize <= 65) return 9;
+        if (charSize >= 56 && charSize <= 60) return 10;
+        if (charSize >= 51 && charSize <= 55) return 11;
+        if (charSize >= 43 && charSize <= 50) return 12;
+        if (charSize >= 41 && charSize <= 42) return 13;
+        if (charSize >= 34 && charSize <= 40) return 14;
+        if (charSize === 35)               return 15;
+        return 8; // fallback
+    }
+
+    // utility: writes/updates a single <style id="dynamic-print-style">
+    function updatePrintStyle(columns) {
+        let style = document.getElementById('dynamic-print-style');
+        if (!style) {
+            style = document.createElement('style');
+            style.id = 'dynamic-print-style';
+            document.head.appendChild(style);
+        }
+        style.textContent = `
+            @media print {
+                .character-grid {
+                    grid-template-columns: repeat(${columns}, 1fr);
+                }
+            }
+        `;
+    }
+
+    /* 3‑A  – respond when the user changes “Size” */
+    document.getElementById('charSize').addEventListener('input', function () {
+        const size = parseInt(this.value, 10);
+        const cols = getPrintColumnsFromSize(size);
+        updatePrintStyle(cols);
+    });
+
+    /* 3‑B  – respond when the user types into “Print Columns” */
+    document.getElementById('printColumns').addEventListener('input', function () {
+        const cols = Math.min(15, Math.max(8, parseInt(this.value, 10) || 8));
+        updatePrintStyle(cols);
+    });
+
+
+
+
+
+
+
+    
     
     // --- UPDATED PRINT LOGIC ------------------------------------------------
     //  We now call window.print() automatically *only* when the script is not
