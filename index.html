@@ -95,6 +95,41 @@
         resize: vertical;
     }
 
+    /* ---------- Custom‑sheet inline row ---------- */
+    .input-inline{           /* the flex wrapper  */
+        display:flex;
+        gap:10px;
+        align-items:center;
+    }
+
+    /* make the text‑box look like the dropdown but keep it narrower */
+    #customSheetId{
+        flex:1 1 65%;        /* grows but caps around two‑thirds width */
+        padding:0.75rem;
+        border-radius:8px;
+        border:1px solid #ddd;
+        font-size:1rem;
+        box-sizing:border-box;
+    }
+
+    /* remove the old top‑margin and match button height */
+    #loadCustomSheetButton{
+        padding:0.75rem 1.2rem;
+        margin:0;            /* eliminates the previous inline style */
+        border:none;
+        border-radius:8px;
+        background:#27ae60;
+        color:#fff;
+        font-weight:600;
+        cursor:pointer;
+    }
+    #loadCustomSheetButton:hover{background:#229954;}
+
+
+
+
+
+    
     .divider {
         display: flex;
         align-items: center;
@@ -355,9 +390,15 @@
 
         <div class="control-group">
             <label for="customSheetId">Import from Custom Sheet ID:</label>
-            <input type="text" id="customSheetId" placeholder="paste Sheet ID here" />
-            <button id="loadCustomSheetButton" style="margin-top:8px;">Load</button>
+
+            <!-- NEW flex row -->
+            <div class="input-inline">
+                <input type="text" id="customSheetId"
+                       placeholder="paste Sheet ID here" />
+                <button id="loadCustomSheetButton">Load</button>
+            </div>
         </div>
+
 
 
         <div class="control-group hidden" id="builtInTextSelectGroup">
