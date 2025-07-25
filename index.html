@@ -762,7 +762,16 @@
     }
 
 
-    updatePrintStyle(8);   // set an initial 8‑column rule
+    const defaultCols = parseInt(document.getElementById('printColsSelect').value, 10);
+    updatePrintStyle(defaultCols);
+
+    // Also sync char size based on dropdown
+    const sizeMap = { 8: 70, 10: 57, 12: 45, 14: 35 };
+    const newSize = sizeMap[defaultCols] || 70;
+    const sizeInput = document.getElementById('charSize');
+    sizeInput.value = newSize;
+    sizeInput.dispatchEvent(new Event('input'));
+
     
     /* 3‑A  – respond when the user changes “Size” */
     document.getElementById('charSize').addEventListener('input', function () {
