@@ -8,243 +8,399 @@
   <meta http-equiv="Expires" content="0" />
   <title>学而时习之</title>
 
-  <!-- -------- GitHub‑Pages bits we’re keeping -------- -->
-  <link rel="icon" type="image/png" href="favicon-32x32.png" />
+  <!-- =====================================================
+       ADDED GoatCounter page‑view tracker (2 lines, async)
+       ===================================================== -->
   <script data-goatcounter="https://linsnotes.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>
 
-  <!-- -------- Combined stylesheet -------- -->
   <style>
-    /* --- Variables --- */
+    /* --- General & Page Layout --- */
     :root {
-      --char-size: 70px;     /* grid box size */
+        --char-size: 70px; /* Initial character size, CSS variable */
     }
 
-    /* --- GENERAL / LAYOUT --- */
-    * { box-sizing:border-box; }
     body {
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-      margin:0; padding:0;
-      text-align:center;
-      background:#f4f7f6;
-      color:#333;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f7f6;
+      text-align: center;
+      color: #333;
     }
-    .hidden { display:none !important; }
+    
+    .hidden {
+      display: none !important;
+    }
 
-    /* --- NAVBAR (GitHub version) --- */
-    .navbar{
-      background:azure;
-      display:flex;align-items:center;justify-content:space-between;
-      padding:0;
-      position:sticky;top:0;z-index:10000;
+    /* --- Landing Page Styles --- */
+    #landing-page {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
     }
-    .navbar a{display:flex;align-items:center;font-size:16px;padding:14px 10px;color:#000;text-decoration:none;}
-    .navbar img{max-height:30px;margin-right:5px;}
-    .navbar img.favicon{margin-right:auto;margin-left:10px;}
 
-    /* --- LANDING PAGE --- */
-    #landing-page{
-      display:flex;justify-content:center;align-items:center;
-      min-height:calc(100vh - 60px); /* minus navbar */
-      padding:20px;
+    .setup-container {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 600px;
     }
-    .setup-container{
-      background:#fff;border-radius:12px;padding:2.5rem;width:100%;max-width:600px;
-      box-shadow:0 8px 32px rgba(0,0,0,.1);
-    }
-    .setup-container h1{color:#2c3e50;margin:0 0 .5rem;}
-    .setup-container p{color:#7f8c8d;margin:0 0 2rem;}
-    .control-group{margin-bottom:1.5rem;text-align:left;}
-    .control-group label{display:block;margin-bottom:.5rem;font-weight:600;color:#34495e;}
-    .control-group select,
-    .control-group textarea{
-      width:100%;padding:.75rem;border-radius:8px;border:1px solid #ddd;font-size:1rem;
-      transition:border-color .2s,box-shadow .2s;
-    }
-    .control-group select:focus,
-    .control-group textarea:focus{
-      outline:none;border-color:#3498db;box-shadow:0 0 0 3px rgba(52,152,219,.2);
-    }
-    .control-group textarea{min-height:120px;resize:vertical;}
-    .divider{display:flex;align-items:center;color:#bdc3c7;margin:2rem 0;font-size:.9rem;text-transform:uppercase;}
-    .divider::before,.divider::after{content:'';flex:1;border-bottom:1px solid #eee;}
-    .divider:not(:empty)::before{margin-right:1em;}
-    .divider:not(:empty)::after{margin-left:1em;}
-    #generate-button{
-      width:100%;border:none;border-radius:8px;padding:1rem 1.5rem;font-size:1.1rem;font-weight:600;
-      background:#27ae60;color:#fff;cursor:pointer;transition:background .2s;
-    }
-    #generate-button:hover{background:#229954;}
 
-    /* --- DISPLAY PAGE --- */
-    #display-page{padding-bottom:180px;} /* space for log */
-    #page-title{margin:20px 0 0;color:#2c3e50;}
-
-    .sticky-container{
-      position:sticky;top:0;z-index:9999;
-      background:rgba(255,255,255,.95);
-      backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-      padding:15px 10px;border-bottom:1px solid #eee;
+    .setup-container h1 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
     }
-    .button-container{display:flex;justify-content:center;gap:10px;margin-bottom:15px;flex-wrap:wrap;}
-    button{
-      font-size:1em;padding:8px 16px;border:none;border-radius:5px;color:#fff;cursor:pointer;transition:opacity .2s;
+
+    .setup-container p {
+        color: #7f8c8d;
+        margin-bottom: 2rem;
     }
-    button:hover{opacity:.85;}
-    #start-button,#next-button,#refresh-button,#back-button{background:#4caf50;}
-    #stop-resume-button{background:#9c27b0;}
-    #animate-button{background:#f0ad4e;}
-    #quiz-button{background:#2196f3;}
-    #print-button{background:#212121;}
-    #back-button{background:#e74c3c;}
 
-    #settings-container{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;}
-    #settings-container label{font-weight:500;margin-left:10px;}
-
-    .character-grid{
-      display:grid;gap:10px;width:90%;max-width:90vw;margin:20px auto;
-      grid-template-columns:repeat(auto-fill,minmax(var(--char-size),1fr));
+    .control-group {
+        margin-bottom: 1.5rem;
+        text-align: left;
     }
-    .character-box{position:relative;width:var(--char-size);height:var(--char-size);border:1px solid #000;margin:0 auto;}
 
-    /* --- LOG --- */
-    #log-messages-wrapper{
-      position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-      width:90%;max-width:550px;z-index:10000;
-      background:rgba(255,255,255,.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-      border-radius:12px;border:1px solid rgba(0,0,0,.1);box-shadow:0 6px 24px rgba(0,0,0,.1);
-      display:flex;align-items:center;justify-content:center;padding:5px 15px;min-height:48px;
+    .control-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #34495e;
     }
-    #log-messages{width:100%;text-align:center;font-size:20px;color:#2c2c2e;}
-    .log-error{color:#d32f2f;}
-    .log-success{color:#388e3c;}
-    .log-info{color:#1976d2;}
 
-    /* --- PRINT PREVIEW CLASS (toggles via JS) --- */
+    .control-group select, .control-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .control-group select:focus, .control-group textarea:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+    
+    .control-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        color: #bdc3c7;
+        margin: 2rem 0;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+
+    .divider::before, .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #eee;
+    }
+    .divider:not(:empty)::before { margin-right: 1em; }
+    .divider:not(:empty)::after { margin-left: 1em; }
+    
+    #generate-button {
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        padding: 1rem 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.2s;
+    }
+    #generate-button:hover { background-color: #229954; }
+
+
+    /* --- Display Page Styles --- */
+    #display-page {
+        padding-bottom: 180px; /* Prevent log from covering last row */
+    }
+
+    #page-title {
+        margin-top: 20px;
+        color: #2c3e50;
+    }
+
+    .sticky-container {
+      position: sticky; 
+      top: 0; 
+      z-index: 9999;
+      background-color: rgba(255, 255, 255, 0.95);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      padding: 15px 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-size: 1em;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.85; }
+
+    #start-button, #next-button, #refresh-button { background-color: #4caf50; }
+    #stop-resume-button { background-color: #9c27b0; }
+    #animate-button { background-color: #f0ad4e; }
+    #quiz-button { background-color: #2196f3; }
+    #print-button { background-color: #212121; }
+    #back-button { background-color: #e74c3c; } 
+
+    #settings-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    #settings-container label { font-weight: 500; margin-left: 10px; }
+
+    .character-grid {
+      display: grid;
+      gap: 10px;
+      width: 90%;
+      max-width: 90vw;
+      margin: 20px auto;
+      grid-template-columns: repeat(auto-fill, minmax(var(--char-size), 1fr));
+    }
+
+    .character-box {
+      position: relative;
+      width: var(--char-size);
+      height: var(--char-size);
+      border: 1px solid #000;
+      margin: 0 auto;
+    }
+    
+    #log-messages-wrapper {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 550px;
+        min-height: 48px;
+        z-index: 10000;
+        background: rgba(255, 255, 255, 0.75);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 15px;
+    }
+
+    #log-messages {
+        width: 100%;
+        text-align: center;
+        color: #2c2c2e;
+        font-size: 20px;
+    }
+    .log-error { color: #d32f2f; }
+    .log-success { color: #388e3c; }
+    .log-info { color: #1976d2; }
+
+    /* --- NEW/IMPROVED PRINT STYLES --- */
+
+    /* Container for the 'Exit Preview' button */
+    #print-exit-container {
+        display: none; /* Hidden by default */
+    }
+
+    #exit-print-button {
+        background-color: #c0392b;
+        font-weight: 600;
+    }
+
+    /* Styles applied when the 'print-preview' class is on the body */
     body.print-preview .button-container,
     body.print-preview #settings-container,
-    body.print-preview #log-messages-wrapper{display:none !important;}
-    body.print-preview #print-exit-container{display:flex !important;justify-content:center;}
-    body.print-preview .sticky-container{background:transparent;border-bottom:none;backdrop-filter:none;-webkit-backdrop-filter:none;}
-
-    /* --- PRINT RULES --- */
-    @media print{
-      @page{size:A4;margin:15mm;}
-      html,body{height:auto !important;overflow:visible !important;background:#fff !important;}
-      #landing-page,.sticky-container,#page-title,#log-messages-wrapper{display:none !important;}
-      #display-page{padding:0 !important;height:auto !important;overflow:visible !important;}
-      .character-grid{
-        grid-template-columns:repeat(8,1fr) !important;
-        gap:15px;width:100%;max-width:100%;margin:0;
-      }
-      .character-box{page-break-inside:avoid;border:1px solid #333;}
-      .character-box[style*="height: 0"]{display:none !important;}
+    body.print-preview #log-messages-wrapper {
+        display: none !important;
     }
 
-    /* --- VISITOR COUNTER FOOTER (GitHub) --- */
-    footer{margin:30px 0 20px;}
+    body.print-preview #print-exit-container {
+        display: flex !important;
+        justify-content: center;
+    }
 
-    /* Mobile footer breathing room (Google version) */
-    #mobile-footer{height:0;}
-    @media (max-width:576px){
-      #mobile-footer{height:calc(80px + env(safe-area-inset-bottom,0px));}
+    body.print-preview .sticky-container {
+        background: transparent;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        border-bottom: none;
+    }
+
+
+    /* Default: nothing on desktop/tablet */
+    #mobile-footer {
+      height: 0;
+    }
+
+    /* Mobile: create breathing-room and respect iPhone safe area */
+    @media (max-width: 576px) {
+        #mobile-footer {
+           height: 80px; /* tweak to taste */
+           height: calc(80px + env(safe-area-inset-bottom, 0px));
+        }
+    }
+
+
+
+    /* Final styles for the actual printed page */
+    @media print {
+        /* FIX: Ensure body and html can expand to content height */
+        html, body {
+            height: auto !important;
+            overflow: visible !important;
+        }
+        
+        body {
+            background: white !important;
+            padding: 0;
+            margin: 0;
+            color: black;
+        }
+
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+
+        /* Hide ALL UI elements when printing */
+        #landing-page, .sticky-container, #page-title, #log-messages-wrapper {
+            display: none !important;
+        }
+
+        /* FIX: Ensure the main content container can flow across pages */
+        #display-page {
+            display: block !important;
+            padding: 0 !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+
+        .character-grid {
+            display: grid !important;
+            grid-template-columns: repeat(8, 1fr) !important;
+            page-break-inside: avoid;
+            gap: 15px;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            overflow: visible !important; /* Ensure grid itself doesn't clip */
+        }
+        
+        .character-box {
+            page-break-inside: avoid;
+            border: 1px solid #333;
+        }
+        
+        /* Hide the divs used for line breaks ('k') when printing */
+        .character-box[style*="height: 0"] {
+            display: none !important;
+        }
     }
   </style>
 </head>
 <body>
-
-  <!-- ===== GITHUB NAVBAR ===== -->
-  <div class="navbar">
-    <a href="https://www.linsnotes.com">
-      <img class="favicon" src="android-chrome-512x512.png" alt="Site icon">
-    </a>
-    <div class="nav-right">
-      <a href="https://www.linsnotes.com/apps" target="_blank">APPS</a>
-      <a href="https://github.com/linsnotes/xizi" target="_blank">
-        <img src="https://github.githubassets.com/favicons/favicon.png" alt="GitHub">
-        GitHub
-      </a>
-    </div>
-  </div>
 
   <!-- ======================================================= -->
   <!--                      LANDING PAGE                       -->
   <!-- ======================================================= -->
   <div id="landing-page">
     <div class="setup-container">
-      <h1>Stroke by Stroke</h1>
-      <p>Start by choosing a built‑in text or pasting your own.</p>
+        <h1>Stroke by Stroke</h1>
+        <p>Start by choosing a built-in text or pasting your own.</p>
+        
+        <div class="control-group">
+            <label for="builtInContentSelect">Select Built-in Sheet:</label>
+            <select id="builtInContentSelect">
+                <option value="" disabled selected>-- Loading List --</option>
+            </select>
+        </div>
+        <div class="control-group hidden" id="builtInTextSelectGroup">
+            <label for="builtInTextSelect">Select Text:</label>
+            <select id="builtInTextSelect">
+                <option value="" disabled selected>-- Select Topic First --</option>
+            </select>
+        </div>
 
-      <div class="control-group">
-        <label for="builtInContentSelect">Select Built‑in Sheet:</label>
-        <select id="builtInContentSelect">
-          <option value="" disabled selected>-- Loading List --</option>
-        </select>
-      </div>
+        <div class="divider">OR</div>
 
-      <div class="control-group hidden" id="builtInTextSelectGroup">
-        <label for="builtInTextSelect">Select Text:</label>
-        <select id="builtInTextSelect">
-          <option value="" disabled selected>-- Select Topic First --</option>
-        </select>
-      </div>
-
-      <div class="divider">OR</div>
-
-      <div class="control-group">
-        <label for="character-input">Paste Your Own Text:</label>
-        <textarea id="character-input"
-          placeholder="Enter or paste Chinese text. Use 'k' for a new line and 'b' for an empty box."></textarea>
-      </div>
-
-      <button id="generate-button">Generate Writing Sheet</button>
+        <div class="control-group">
+            <label for="character-input">Paste Your Own Text:</label>
+            <textarea id="character-input" placeholder="Enter or paste Chinese text. Use 'k' for a new line and 'b' for an empty box."></textarea>
+        </div>
+        
+        <button id="generate-button">Generate Writing Sheet</button>
     </div>
   </div>
-  <footer id="mobile-footer"></footer>
+<footer id="mobile-footer"></footer>
 
   <!-- ======================================================= -->
   <!--                      DISPLAY PAGE                       -->
   <!-- ======================================================= -->
   <div id="display-page" class="hidden">
-    <h1 id="page-title">Stroke by Stroke: the Beauty of Chinese Characters!</h1>
-
+  
     <div class="sticky-container">
-      <div class="button-container">
-        <button id="back-button">New Sheet</button>
-        <button id="start-button">Start</button>
-        <button id="next-button">Next</button>
-        <button id="stop-resume-button">Stop</button>
-        <button id="animate-button">Animate All</button>
-        <button id="quiz-button">Quiz Mode</button>
-        <button id="print-button">Full Page View</button>
-        <button id="refresh-button">Refresh</button>
-      </div>
-
-      <div id="settings-container">
-        <label for="charSize">Size:</label>
-        <input type="number" id="charSize" value="70" min="40" max="150" step="1" />
-        <label for="color">Radical Color:</label>
-        <input type="color" id="color" value="#FF00FF" />
-      </div>
-
-      <!-- Visible only inside print‑preview -->
-      <div id="print-exit-container" class="hidden">
-        <button id="exit-print-button" style="background:#c0392b;font-weight:600;">Exit Full Page View</button>
-      </div>
+        <div class="button-container">
+          <button id="back-button">New Sheet</button>
+          <button id="start-button">Start</button>
+          <button id="next-button">Next</button>
+          <button id="stop-resume-button">Stop</button>
+          <button id="animate-button">Animate All</button>
+          <button id="quiz-button">Quiz Mode</button>
+          <button id="print-button">Full Page View</button>
+          <button id="refresh-button">Refresh</button>
+        </div>
+        <div id="settings-container">
+            <label for="charSize">Size:</label>
+            <input type="number" id="charSize" value="70" min="40" max="150" step="1" />
+            <label for="color">Radical Color:</label>
+            <input type="color" id="color" value="#FF00FF" />
+        </div>
+        <!-- NEW CONTAINER FOR EXIT PRINT BUTTON -->
+        <div id="print-exit-container">
+            <button id="exit-print-button">Exit Full Page View</button>
+        </div>
     </div>
 
     <div class="character-grid" id="character-grid"></div>
     <div id="log-messages-wrapper"><div id="log-messages"></div></div>
   </div>
 
-  <!-- ======================================================= -->
-  <!--                      VISITOR COUNTER                    -->
-  <!-- ======================================================= -->
-  <footer>
-    <div id="visitor-counter">
-      Welcome! You’re visitor #<span id="pageviews">Loading...</span>
-    </div>
-  </footer>
 
   <!-- ======================================================= -->
   <!--                         SCRIPTS                         -->
@@ -252,298 +408,340 @@
   <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script>
-  /* ------------------------------------------------------------------
-     SECTION 0 : global helpers
-  ------------------------------------------------------------------ */
-  const landingPage     = document.getElementById('landing-page');
-  const displayPage     = document.getElementById('display-page');
-  const MASTER_SHEET_ID = "1mc3uJfaRNAca6v0OD9kETNhXnl6VzWEqAuALeyUHuFc";
+    // --- Page Section Elements ---
+    const landingPage = document.getElementById('landing-page');
+    const displayPage = document.getElementById('display-page');
 
-  const builtInContentSelect     = document.getElementById("builtInContentSelect");
-  const builtInTextSelectGroup   = document.getElementById("builtInTextSelectGroup");
-  const builtInTextSelect        = document.getElementById("builtInTextSelect");
-  const characterInput           = document.getElementById('character-input');
-  const generateButton           = document.getElementById('generate-button');
+    // --- Landing Page Elements ---
+    const MASTER_SHEET_ID = "1mc3uJfaRNAca6v0OD9kETNhXnl6VzWEqAuALeyUHuFc";
+    const builtInContentSelect = document.getElementById("builtInContentSelect");
+    const builtInTextSelectGroup = document.getElementById("builtInTextSelectGroup");
+    const builtInTextSelect = document.getElementById("builtInTextSelect");
+    const characterInput = document.getElementById('character-input');
+    const generateButton = document.getElementById('generate-button');
+    let currentSheetContentData = [];
 
-  const characterGrid            = document.getElementById('character-grid');
-  const pageTitle                = document.getElementById('page-title');
-  let writers        = [];
-  let currentIndex   = 0;
-  let isPaused       = false;
-  let stopAll        = false;
-  let originalText   = "";
-  let lastAnimateAllText = "";
-  let currentSheetContentData = [];
+    // --- Display Page Elements & State ---
+    const characterGrid = document.getElementById('character-grid');
+    let writers = [];
+    let currentIndex = 0;
+    let isPaused = false;
+    let stopAll = false;
+    let originalText = ""; // Store current text for refresh
+    let lastAnimateAllText = "";
 
-  function displayLog(msg,type){
-    const area=document.getElementById('log-messages');
-    area.innerHTML='';
-    const div=document.createElement('div');
-    div.textContent=msg;
-    div.className=type==='error'?'log-error':type==='success'?'log-success':'log-info';
-    area.appendChild(div);
-  }
+    // --- Core Functions ---
+    function displayLog(message, type) {
+      const logArea = document.getElementById('log-messages');
+      logArea.innerHTML = ''; // Clear previous
+      const newMessage = document.createElement('div');
+      newMessage.textContent = message;
+      if (type === 'error') newMessage.className = 'log-error';
+      else if (type === 'success') newMessage.className = 'log-success';
+      else newMessage.className = 'log-info';
+      logArea.appendChild(newMessage);
+    }
 
-  /* ------------------------------------------------------------------
-     SECTION 1 : grid creation & animation helpers
-  ------------------------------------------------------------------ */
-  function createWritersFromText(text){
-    characterGrid.innerHTML='';
-    writers=[];
-    const maxChars = 1000;
-    const finalText = text.slice(0,maxChars);
-    lastAnimateAllText = finalText;
+    function createWritersFromText(text) {
+        characterGrid.innerHTML = '';
+        writers = [];
+        const maxChars = 1000;
+        const finalText = text.slice(0, maxChars);
+        lastAnimateAllText = finalText; 
 
-    /* update grid variable */
-    const charSizeVal = document.getElementById('charSize').value;
-    document.documentElement.style.setProperty('--char-size', charSizeVal+'px');
-    const charSize = parseInt(charSizeVal,10);
+        const charSizeValue = document.getElementById('charSize').value;
+        document.documentElement.style.setProperty('--char-size', charSizeValue + 'px');
+        const charSize = parseInt(charSizeValue, 10);
 
-    const isChineseChar=/[\u4e00-\u9fa5]/;
+        const isChineseChar = /[\u4e00-\u9fa5]/;
 
-    for(let i=0;i<finalText.length;i++){
-      const char = finalText[i];
-      const box  = document.createElement('div');
-      box.className='character-box';
-      box.id='char-box-'+i;
+        for (let i = 0; i < finalText.length; i++) {
+            const char = finalText[i];
+            const boxDiv = document.createElement('div');
+            boxDiv.className = 'character-box';
+            boxDiv.id = 'char-box-' + i;
+            
+            if (char === 'k') {
+                boxDiv.style.gridColumn = '1 / -1';
+                boxDiv.style.height = '0';
+                boxDiv.style.border = 'none';
+                characterGrid.appendChild(boxDiv);
+                writers.push(null);
+            } else if (char === 'b') {
+                characterGrid.appendChild(boxDiv);
+                writers.push(null);
+            } else if (isChineseChar.test(char)) {
+                characterGrid.appendChild(boxDiv);
+                const writer = HanziWriter.create(boxDiv.id, char, {
+                    width: charSize, height: charSize, padding: 2,
+                    showOutline: true, strokeAnimationSpeed: 1, delayBetweenStrokes: 200,
+                    radicalColor: document.getElementById('color').value
+                });
+                writers.push(writer);
+            } else {
+                boxDiv.style.display = 'flex';
+                boxDiv.style.alignItems = 'center';
+                boxDiv.style.justifyContent = 'center';
+                boxDiv.style.fontSize = `${charSize * 0.6}px`;
+                boxDiv.textContent = char;
+                characterGrid.appendChild(boxDiv);
+                writers.push(null);
+            }
+        }
+        currentIndex = 0;
+        isPaused = false;
+        document.getElementById('start-button').textContent = 'Start';
+        document.getElementById('stop-resume-button').textContent = 'Stop';
+        document.getElementById('animate-button').textContent = 'Animate All';
+    }
+    
+    function animateCurrent() {
+      if (!writers[currentIndex]) return;
+      writers[currentIndex].animateCharacter({
+        onComplete: function() {
+          displayLog(`Character #${currentIndex + 1} animation done.`, 'info');
+        }
+      });
+    }
 
-      if(char==='k'){ /* newline */
-        box.style.gridColumn='1 / -1';
-        box.style.height='0';
-        box.style.border='none';
-        characterGrid.appendChild(box);
-        writers.push(null);
-      }else if(char==='b'){ /* empty square */
-        characterGrid.appendChild(box);
-        writers.push(null);
-      }else if(isChineseChar.test(char)){
-        characterGrid.appendChild(box);
-        const w=HanziWriter.create(box.id,char,{
-          width:charSize,height:charSize,padding:2,showOutline:true,strokeAnimationSpeed:1,delayBetweenStrokes:200,
-          radicalColor:document.getElementById('color').value
+    // --- Landing Page Logic ---
+    async function fetchAndParseContentSheet(sheetId) {
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0&tqx=out:csv×tamp=${new Date().getTime()}`;
+        try {
+            const response = await fetch(url, { cache: "no-store" });
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            const csv = await response.text();
+            const workbook = XLSX.read(csv, { type: "string", raw: true });
+            const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1, defval: "" });
+            return jsonData.slice(1).map(row => ({ title: String(row[0] || '').trim(), text: String(row[1] || '').trim() }));
+        } catch (error) {
+            alert(`Error loading sheet content: ${error.message}`);
+            return null;
+        }
+    }
+
+    function populateTextDropdown(data) {
+        builtInTextSelect.innerHTML = '<option value="" disabled selected>-- Select Text --</option>';
+        if (data && data.length > 0) {
+            data.forEach((item, index) => {
+                if(item.title) {
+                    const option = document.createElement("option");
+                    option.value = index;
+                    option.textContent = item.title.substring(0, 80);
+                    builtInTextSelect.appendChild(option);
+                }
+            });
+            builtInTextSelectGroup.classList.remove("hidden");
+            builtInTextSelect.disabled = false;
+        }
+    }
+
+    async function loadBuiltInList() {
+        const listUrl = `https://docs.google.com/spreadsheets/d/${MASTER_SHEET_ID}/export?format=csv&gid=0&tqx=out:csv×tamp=${new Date().getTime()}`;
+        try {
+            const response = await fetch(listUrl, { cache: "no-store" });
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            const csv = await response.text();
+            const workbook = XLSX.read(csv, { type: "string" });
+            const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1, defval: "" });
+            
+            builtInContentSelect.innerHTML = '<option value="" disabled selected>-- Select Topic/Sheet --</option>';
+            jsonData.slice(1).forEach(row => {
+                if (row && row[0] && row[1]) {
+                    const option = document.createElement("option");
+                    option.value = String(row[1]).trim();
+                    option.textContent = String(row[0]).trim();
+                    builtInContentSelect.appendChild(option);
+                }
+            });
+        } catch (error) {
+            alert(`Error loading master list: ${error.message}`);
+        }
+    }
+
+    // --- Event Listeners for Page Switching & Setup ---
+    generateButton.addEventListener('click', () => {
+        originalText = characterInput.value.trim();
+        if (!originalText) {
+            alert("Please select a built-in text or enter your own before generating.");
+            return;
+        }
+        createWritersFromText(originalText);
+        displayLog('Sheet generated. Ready to start!', 'success');
+        
+        landingPage.classList.add('hidden');
+        displayPage.classList.remove('hidden');
+    });
+    
+    document.getElementById('back-button').addEventListener('click', () => {
+        displayPage.classList.add('hidden');
+        landingPage.classList.remove('hidden');
+        characterGrid.innerHTML = '';
+        writers = [];
+    });
+
+    builtInContentSelect.addEventListener("change", async (event) => {
+        const selectedSheetId = event.target.value;
+        if (!selectedSheetId) return;
+        builtInTextSelect.innerHTML = '<option value="" disabled selected>-- Loading Texts... --</option>';
+        characterInput.value = "";
+        const contentData = await fetchAndParseContentSheet(selectedSheetId);
+        currentSheetContentData = contentData || [];
+        populateTextDropdown(currentSheetContentData);
+    });
+
+    builtInTextSelect.addEventListener("change", (event) => {
+        const selectedIndex = parseInt(event.target.value, 10);
+        if (!isNaN(selectedIndex) && currentSheetContentData[selectedIndex]) {
+            characterInput.value = currentSheetContentData[selectedIndex].text;
+        }
+    });
+
+    // --- Event Listeners for Display Page Controls ---
+    document.getElementById('refresh-button').addEventListener('click', () => {
+        if (originalText) {
+            displayLog("Refreshing with new settings...", 'info');
+            createWritersFromText(originalText);
+        }
+    });
+
+    document.getElementById('charSize').addEventListener('input', () => {
+        if (writers.length > 0) createWritersFromText(originalText);
+    });
+    document.getElementById('color').addEventListener('input', () => {
+        if (writers.length > 0) createWritersFromText(originalText);
+    });
+    
+    // --- UPDATED PRINT LOGIC ------------------------------------------------
+    //  We now call window.print() automatically *only* when the script is not
+    //  running inside an <iframe> sandbox (i.e., GitHub Pages or any top‑level
+    //  page). In a Google Sites embed, the call is blocked, so we keep the
+    //  original “Ctrl+P” hint instead.
+    // -----------------------------------------------------------------------
+    document.getElementById('print-button').addEventListener('click', () => {
+      const inTopWindow = window.top === window.self; // true = standalone page
+      document.body.classList.add('print-preview');
+
+      if (inTopWindow) {
+        // Stand‑alone (e.g. GitHub Pages) → open system print dialog
+        window.print();
+      } else {
+        // Still in Google Sites iframe → cannot print programmatically
+        displayLog("Use browser menu or Ctrl+P to print.", "info");
+      }
+
+      // Enter preview state (hides UI)
+      document.body.classList.add('print-preview');
+    });
+
+    document.getElementById('exit-print-button').addEventListener('click', () => {
+        document.body.classList.remove('print-preview');
+        displayLog("Exited full page view.", "info");
+    });
+
+    // Reset preview if user closes print dialog manually
+    window.addEventListener('afterprint', () => {
+        document.body.classList.remove('print-preview');
+        displayLog("Exited full page view.", "info");
+    });
+    // --- END OF MODIFIED PRINT LOGIC ---------------------------------------
+    
+    document.getElementById('animate-button').addEventListener('click', function() {
+      if (this.textContent === 'Animate All') {
+        if (writers.length === 0) return displayLog("No characters to animate.", 'error');
+        stopAll = false;
+        displayLog("Starting sequential animation!", 'info');
+        let currentIndexForAll = 0;
+        function animateNext() {
+          if (stopAll) return displayLog("All animations stopped!", 'info');
+          if (currentIndexForAll >= writers.length) return displayLog("All characters animated!", 'success');
+          const writer = writers[currentIndexForAll];
+          if (!writer) {
+            currentIndexForAll++;
+            animateNext();
+            return;
+          }
+          writer.animateCharacter({
+            onComplete: function() {
+              currentIndexForAll++;
+              animateNext();
+            },
+          });
+        }
+        animateNext();
+        this.textContent = 'Stop All';
+      } else {
+        stopAll = true;
+        displayLog("Stopping all animations and reverting to initial state.", 'info');
+        createWritersFromText(lastAnimateAllText);
+        this.textContent = 'Animate All';
+      }
+    });
+
+    document.getElementById('quiz-button').addEventListener('click', function() {
+      if (writers.length === 0) return displayLog("No characters to quiz.", 'error');
+      displayLog("Starting quiz mode for all characters. Good luck!", 'info');
+      writers.forEach((writer, idx) => {
+        if (!writer) return;
+        writer.quiz({
+          onMistake: (strokeData) => displayLog(`Char #${idx + 1}: Mistake on stroke ${strokeData.strokeNum + 1}`, 'error'),
+          onCorrectStroke: (strokeData) => displayLog(`Char #${idx + 1}: Correct stroke ${strokeData.strokeNum + 1}`, 'success'),
+          onComplete: (summaryData) => displayLog(`Char #${idx + 1} completed with ${summaryData.totalMistakes} mistakes.`, 'info')
         });
-        writers.push(w);
-      }else{ /* punctuation or other char */
-        box.style.display='flex';box.style.alignItems='center';box.style.justifyContent='center';
-        box.style.fontSize=(charSize*0.6)+'px';
-        box.textContent=char;
-        characterGrid.appendChild(box);
-        writers.push(null);
-      }
-    }
-    currentIndex=0;isPaused=false;stopAll=false;
-    document.getElementById('start-button').textContent='Start';
-    document.getElementById('stop-resume-button').textContent='Stop';
-    document.getElementById('animate-button').textContent='Animate All';
-  }
-
-  function animateCurrent(){
-    if(!writers[currentIndex])return;
-    writers[currentIndex].animateCharacter({
-      onComplete:()=>displayLog(`Character #${currentIndex+1} animation done.`,'info')
-    });
-  }
-
-  /* ------------------------------------------------------------------
-     SECTION 2 : Google‑Sheet integration
-  ------------------------------------------------------------------ */
-  async function fetchAndParseContentSheet(sheetId){
-    const url=`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0&tqx=out:csv&timestamp=${Date.now()}`;
-    try{
-      const resp=await fetch(url,{cache:"no-store"});
-      if(!resp.ok)throw new Error(`Status ${resp.status}`);
-      const csv=await resp.text();
-      const wb  =XLSX.read(csv,{type:"string"});
-      const data=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:""});
-      return data.slice(1).map(r=>({title:String(r[0]||'').trim(),text:String(r[1]||'').trim()}));
-    }catch(e){
-      alert(`Error loading sheet content: ${e.message}`);
-      return null;
-    }
-  }
-
-  function populateTextDropdown(arr){
-    builtInTextSelect.innerHTML='<option value="" disabled selected>-- Select Text --</option>';
-    if(arr&&arr.length){
-      arr.forEach((item,idx)=>{
-        if(item.title){
-          const opt=document.createElement('option');
-          opt.value=idx;
-          opt.textContent=item.title.substring(0,80);
-          builtInTextSelect.appendChild(opt);
-        }
-      });
-      builtInTextSelectGroup.classList.remove('hidden');
-    }
-  }
-
-  async function loadBuiltInList(){
-    const url=`https://docs.google.com/spreadsheets/d/${MASTER_SHEET_ID}/export?format=csv&gid=0&tqx=out:csv&timestamp=${Date.now()}`;
-    try{
-      const resp=await fetch(url,{cache:"no-store"});
-      if(!resp.ok)throw new Error(`Status ${resp.status}`);
-      const csv=await resp.text();
-      const wb = XLSX.read(csv,{type:"string"});
-      const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:""});
-      builtInContentSelect.innerHTML='<option value="" disabled selected>-- Select Topic/Sheet --</option>';
-      rows.slice(1).forEach(r=>{
-        if(r&&r[0]&&r[1]){
-          const opt=document.createElement('option');
-          opt.value=String(r[1]).trim();
-          opt.textContent=String(r[0]).trim();
-          builtInContentSelect.appendChild(opt);
-        }
-      });
-    }catch(e){alert(`Error loading master list: ${e.message}`);}
-  }
-
-  /* ------------------------------------------------------------------
-     SECTION 3 : Event bindings — Landing page
-  ------------------------------------------------------------------ */
-  generateButton.addEventListener('click',()=>{
-    originalText=characterInput.value.trim();
-    if(!originalText){alert("Please select a built‑in text or enter your own before generating.");return;}
-    createWritersFromText(originalText);
-    displayLog('Sheet generated. Ready to start!','success');
-    landingPage.classList.add('hidden');
-    displayPage.classList.remove('hidden');
-  });
-
-  builtInContentSelect.addEventListener('change',async e=>{
-    const sheetId=e.target.value;
-    if(!sheetId)return;
-    builtInTextSelect.innerHTML='<option value="" disabled selected>-- Loading Texts... --</option>';
-    characterInput.value="";
-    currentSheetContentData=await fetchAndParseContentSheet(sheetId)||[];
-    populateTextDropdown(currentSheetContentData);
-  });
-
-  builtInTextSelect.addEventListener('change',e=>{
-    const idx=parseInt(e.target.value,10);
-    if(!isNaN(idx)&&currentSheetContentData[idx]){
-      characterInput.value=currentSheetContentData[idx].text;
-    }
-  });
-
-  /* ------------------------------------------------------------------
-     SECTION 4 : Event bindings — Display page controls
-  ------------------------------------------------------------------ */
-  document.getElementById('back-button').addEventListener('click',()=>{
-    displayPage.classList.add('hidden');
-    landingPage.classList.remove('hidden');
-    characterGrid.innerHTML='';writers=[];
-  });
-
-  document.getElementById('refresh-button').addEventListener('click',()=>{
-    if(originalText){displayLog("Refreshing with new settings...",'info');createWritersFromText(originalText);}
-  });
-  document.getElementById('charSize').addEventListener('input',()=>{if(writers.length)createWritersFromText(originalText);});
-  document.getElementById('color').addEventListener('input',()=>{if(writers.length)createWritersFromText(originalText);});
-
-  /* --- start / prev --- */
-  document.getElementById('start-button').addEventListener('click',function(){
-    if(writers.length===0)return displayLog("No characters to animate.",'error');
-    if(this.textContent==='Start'){
-      currentIndex=-1;
-      do{currentIndex++;}while(writers[currentIndex]===null&&currentIndex<writers.length);
-      if(currentIndex<writers.length){
-        displayLog("Starting from character #1",'info');
-        animateCurrent();
-        this.textContent='Previous';
-      }
-    }else{
-      do{currentIndex--;}while(writers[currentIndex]===null&&currentIndex>-1);
-      if(currentIndex>-1){
-        displayLog(`Moving to character #${currentIndex+1}`,'info');
-        animateCurrent();
-      }else{currentIndex=0;}
-    }
-  });
-
-  /* --- next --- */
-  document.getElementById('next-button').addEventListener('click',()=>{
-    if(writers.length===0)return displayLog("No characters to animate.",'error');
-    if(currentIndex<writers.length-1){
-      do{currentIndex++;}while(writers[currentIndex]===null&&currentIndex<writers.length-1);
-      if(writers[currentIndex]){displayLog(`Moving to character #${currentIndex+1}`,'info');animateCurrent();}
-    }
-  });
-
-  /* --- stop/resume --- */
-  document.getElementById('stop-resume-button').addEventListener('click',function(){
-    const w=writers[currentIndex];
-    if(!w)return displayLog("No character selected to stop/resume.",'error');
-    if(!isPaused){w.pauseAnimation();isPaused=true;this.textContent='Resume';displayLog("Paused animation.",'info');}
-    else{w.resumeAnimation();isPaused=false;this.textContent='Stop';displayLog("Resumed animation.",'info');}
-  });
-
-  /* --- animate all / stop all --- */
-  document.getElementById('animate-button').addEventListener('click',function(){
-    if(this.textContent==='Animate All'){
-      if(writers.length===0)return displayLog("No characters to animate.",'error');
-      stopAll=false;displayLog("Starting sequential animation!",'info');
-      let idx=0;
-      const animateNext=()=>{
-        if(stopAll){displayLog("All animations stopped!",'info');return;}
-        if(idx>=writers.length){displayLog("All characters animated!",'success');return;}
-        const w=writers[idx];
-        if(!w){idx++;animateNext();return;}
-        w.animateCharacter({onComplete:()=>{idx++;animateNext();}});
-      };
-      animateNext();
-      this.textContent='Stop All';
-    }else{
-      stopAll=true;
-      displayLog("Stopping all animations and reverting to initial state.",'info');
-      createWritersFromText(lastAnimateAllText);
-      this.textContent='Animate All';
-    }
-  });
-
-  /* --- quiz all --- */
-  document.getElementById('quiz-button').addEventListener('click',()=>{
-    if(writers.length===0)return displayLog("No characters to quiz.",'error');
-    displayLog("Starting quiz mode for all characters. Good luck!",'info');
-    writers.forEach((w,idx)=>{
-      if(!w)return;
-      w.quiz({
-        onMistake:sd=>displayLog(`Char #${idx+1}: Mistake on stroke ${sd.strokeNum+1}`,'error'),
-        onCorrectStroke:sd=>displayLog(`Char #${idx+1}: Correct stroke ${sd.strokeNum+1}`,'success'),
-        onComplete:sum=>displayLog(`Char #${idx+1} completed with ${sum.totalMistakes} mistakes.`,'info')
       });
     });
-  });
 
-  /* --- print / exit print --- */
-  document.getElementById('print-button').addEventListener('click',()=>{
-    document.body.classList.add('print-preview');
-    displayLog("Opening print dialog...","info");
-    window.print();
-  });
-  document.getElementById('exit-print-button').addEventListener('click',()=>{
-    document.body.classList.remove('print-preview');
-    displayLog("Exited full page view.","info");
-  });
-  window.addEventListener('afterprint',()=>{
-    document.body.classList.remove('print-preview');
-    displayLog("Exited full page view.","info");
-  });
+    document.getElementById('start-button').addEventListener('click', function() {
+      if (writers.length === 0) return displayLog("No characters to animate.", 'error');
+      if (this.textContent === 'Start') {
+        currentIndex = -1;
+        do { currentIndex++; } while (writers[currentIndex] === null && currentIndex < writers.length);
+        if (currentIndex < writers.length) {
+          displayLog("Starting from character #1", 'info');
+          animateCurrent();
+          this.textContent = 'Previous';
+        }
+      } else { // 'Previous'
+        do { currentIndex--; } while (writers[currentIndex] === null && currentIndex > -1);
+        if (currentIndex > -1) {
+          displayLog(`Moving to character #${currentIndex + 1}`, 'info');
+          animateCurrent();
+        } else {
+            currentIndex = 0;
+        }
+      }
+    });
 
-  /* ------------------------------------------------------------------
-     SECTION 5 : visitor counter fetch
-  ------------------------------------------------------------------ */
-  document.addEventListener('DOMContentLoaded',()=>{
-    loadBuiltInList(); /* landing page sheet list */
-    const pv=document.getElementById('pageviews');
-    if(pv){
-      const uri=location.pathname.replace(/\/$/,'');
-      const url=`https://linsnotes.goatcounter.com/counter/${encodeURIComponent(uri)}.json`;
-      fetch(url).then(r=>r.json()).then(d=>{
-        const count=d.count.replace(/\s/g,'');
-        pv.innerText=new Intl.NumberFormat().format(count);
-      }).catch(()=>{pv.innerText='1';});
-    }
-  });
+    document.getElementById('next-button').addEventListener('click', function() {
+      if (writers.length === 0) return displayLog("No characters to animate.", 'error');
+      if (currentIndex < writers.length - 1) {
+          do { currentIndex++; } while (writers[currentIndex] === null && currentIndex < writers.length -1);
+          if (writers[currentIndex]){
+              displayLog(`Moving to character #${currentIndex + 1}`, 'info');
+              animateCurrent();
+          }
+      }
+    });
+
+    document.getElementById('stop-resume-button').addEventListener('click', function() {
+      const writer = writers[currentIndex];
+      if (!writer) return displayLog("No character selected to stop/resume.", 'error');
+      if (!isPaused) {
+        writer.pauseAnimation();
+        displayLog("Paused animation.", 'info');
+        isPaused = true;
+        this.textContent = "Resume";
+      } else {
+        writer.resumeAnimation();
+        displayLog("Resumed animation.", 'info');
+        isPaused = false;
+        this.textContent = "Stop";
+      }
+    });
+
+    // --- Initial Load ---
+    document.addEventListener('DOMContentLoaded', loadBuiltInList);
+
   </script>
 </body>
 </html>
