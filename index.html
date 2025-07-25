@@ -392,6 +392,9 @@
             <input type="number" id="charSize" value="70" min="40" max="150" step="1" />
             <label for="color">Radical Color:</label>
             <input type="color" id="color" value="#FF00FF" />
+            <label for="strokeColor">Stroke Color:</label>
+            <input type="color" id="strokeColor" value="#000000" />
+
             <label for="printColumns" style="display:none">Print Cols:</label>
             <input  type="number"
                     id="printColumns"
@@ -494,7 +497,8 @@
                 const writer = HanziWriter.create(boxDiv.id, char, {
                     width: charSize, height: charSize, padding: 2,
                     showOutline: true, strokeAnimationSpeed: 1, delayBetweenStrokes: 200,
-                    radicalColor: document.getElementById('color').value
+                    radicalColor: document.getElementById('color').value,
+                    strokeColor:  document.getElementById('strokeColor').value
                 });
                 writers.push(writer);
             } else {
@@ -628,6 +632,10 @@
         if (writers.length > 0) createWritersFromText(originalText);
     });
     document.getElementById('color').addEventListener('input', () => {
+        if (writers.length > 0) createWritersFromText(originalText);
+    });
+
+    document.getElementById('strokeColor').addEventListener('input', () => {
         if (writers.length > 0) createWritersFromText(originalText);
     });
 
