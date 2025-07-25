@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>学而时习之</title>
+
+  <!-- -------- GitHub‑Pages bits we’re keeping -------- -->
+  <link rel="icon" type="image/png" href="favicon-32x32.png" />
+  <script data-goatcounter="https://linsnotes.goatcounter.com/count"
+          async src="https://gc.zgo.at/count.js"></script>
+
+  <!-- -------- Combined stylesheet -------- -->
+  <style>
+    /* --- Variables --- */
+    :root {
+      --char-size: 70px;     /* grid box size */
+    }
+
+    /* --- GENERAL / LAYOUT --- */
+    * { box-sizing:border-box; }
+    body {
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      margin:0; padding:0;
+      text-align:center;
+      background:#f4f7f6;
+      color:#333;
+    }
+    .hidden { display:none !important; }
+
+    /* --- NAVBAR (GitHub version) --- */
+    .navbar{
+      background:azure;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0;
+      position:sticky;top:0;z-index:10000;
+    }
+    .navbar a{display:flex;align-items:center;font-size:16px;padding:14px 10px;color:#000;text-decoration:none;}
+    .navbar img{max-height:30px;margin-right:5px;}
+    .navbar img.favicon{margin-right:auto;margin-left:10px;}
+
+    /* --- LANDING PAGE --- */
+    #landing-page{
+      display:flex;justify-content:center;align-items:center;
+      min-height:calc(100vh - 60px); /* minus navbar */
+      padding:20px;
+    }
+    .setup-container{
+      background:#fff;border-radius:12px;padding:2.5rem;width:100%;max-width:600px;
+      box-shadow:0 8px 32px rgba(0,0,0,.1);
+    }
+    .setup-container h1{color:#2c3e50;margin:0 0 .5rem;}
+    .setup-container p{color:#7f8c8d;margin:0 0 2rem;}
+    .control-group{margin-bottom:1.5rem;text-align:left;}
+    .control-group label{display:block;margin-bottom:.5rem;font-weight:600;color:#34495e;}
+    .control-group select,
+    .control-group textarea{
+      width:100%;padding:.75rem;border-radius:8px;border:1px solid #ddd;font-size:1rem;
+      transition:border-color .2s,box-shadow .2s;
+    }
+    .control-group select:focus,
+    .control-group textarea:focus{
+      outline:none;border-color:#3498db;box-shadow:0 0 0 3px rgba(52,152,219,.2);
+    }
+    .control-group textarea{min-height:120px;resize:vertical;}
+    .divider{display:flex;align-items:center;color:#bdc3c7;margin:2rem 0;font-size:.9rem;text-transform:uppercase;}
+    .divider::before,.divider::after{content:'';flex:1;border-bottom:1px solid #eee;}
+    .divider:not(:empty)::before{margin-right:1em;}
+    .divider:not(:empty)::after{margin-left:1em;}
+    #generate-button{
+      width:100%;border:none;border-radius:8px;padding:1rem 1.5rem;font-size:1.1rem;font-weight:600;
+      background:#27ae60;color:#fff;cursor:pointer;transition:background .2s;
+    }
+    #generate-button:hover{background:#229954;}
+
+    /* --- DISPLAY PAGE --- */
+    #display-page{padding-bottom:180px;} /* space for log */
+    #page-title{margin:20px 0 0;color:#2c3e50;}
+
+    .sticky-container{
+      position:sticky;top:0;z-index:9999;
+      background:rgba(255,255,255,.95);
+      backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+      padding:15px 10px;border-bottom:1px solid #eee;
+    }
+    .button-container{display:flex;justify-content:center;gap:10px;margin-bottom:15px;flex-wrap:wrap;}
+    button{
+      font-size:1em;padding:8px 16px;border:none;border-radius:5px;color:#fff;cursor:pointer;transition:opacity .2s;
+    }
+    button:hover{opacity:.85;}
+    #start-button,#next-button,#refresh-button,#back-button{background:#4caf50;}
+    #stop-resume-button{background:#9c27b0;}
+    #animate-button{background:#f0ad4e;}
+    #quiz-button{background:#2196f3;}
+    #print-button{background:#212121;}
+    #back-button{background:#e74c3c;}
+
+    #settings-container{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;}
+    #settings-container label{font-weight:500;margin-left:10px;}
+
+    .character-grid{
+      display:grid;gap:10px;width:90%;max-width:90vw;margin:20px auto;
+      grid-template-columns:repeat(auto-fill,minmax(var(--char-size),1fr));
+    }
+    .character-box{position:relative;width:var(--char-size);height:var(--char-size);border:1px solid #000;margin:0 auto;}
+
+    /* --- LOG --- */
+    #log-messages-wrapper{
+      position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+      width:90%;max-width:550px;z-index:10000;
+      background:rgba(255,255,255,.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      border-radius:12px;border:1px solid rgba(0,0,0,.1);box-shadow:0 6px 24px rgba(0,0,0,.1);
+      display:flex;align-items:center;justify-content:center;padding:5px 15px;min-height:48px;
+    }
+    #log-messages{width:100%;text-align:center;font-size:20px;color:#2c2c2e;}
+    .log-error{color:#d32f2f;}
+    .log-success{color:#388e3c;}
+    .log-info{color:#1976d2;}
+
+    /* --- PRINT PREVIEW CLASS (toggles via JS) --- */
+    body.print-preview .button-container,
+    body.print-preview #settings-container,
+    body.print-preview #log-messages-wrapper{display:none !important;}
+    body.print-preview #print-exit-container{display:flex !important;justify-content:center;}
+    body.print-preview .sticky-container{background:transparent;border-bottom:none;backdrop-filter:none;-webkit-backdrop-filter:none;}
+
+    /* --- PRINT RULES --- */
+    @media print{
+      @page{size:A4;margin:15mm;}
+      html,body{height:auto !important;overflow:visible !important;background:#fff !important;}
+      #landing-page,.sticky-container,#page-title,#log-messages-wrapper{display:none !important;}
+      #display-page{padding:0 !important;height:auto !important;overflow:visible !important;}
+      .character-grid{
+        grid-template-columns:repeat(8,1fr) !important;
+        gap:15px;width:100%;max-width:100%;margin:0;
+      }
+      .character-box{page-break-inside:avoid;border:1px solid #333;}
+      .character-box[style*="height: 0"]{display:none !important;}
+    }
+
+    /* --- VISITOR COUNTER FOOTER (GitHub) --- */
+    footer{margin:30px 0 20px;}
+
+    /* Mobile footer breathing room (Google version) */
+    #mobile-footer{height:0;}
+    @media (max-width:576px){
+      #mobile-footer{height:calc(80px + env(safe-area-inset-bottom,0px));}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== GITHUB NAVBAR ===== -->
+  <div class="navbar">
+    <a href="https://www.linsnotes.com">
+      <img class="favicon" src="android-chrome-512x512.png" alt="Site icon">
+    </a>
+    <div class="nav-right">
+      <a href="https://www.linsnotes.com/apps" target="_blank">APPS</a>
+      <a href="https://github.com/linsnotes/xizi" target="_blank">
+        <img src="https://github.githubassets.com/favicons/favicon.png" alt="GitHub">
+        GitHub
+      </a>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!--                      LANDING PAGE                       -->
+  <!-- ======================================================= -->
+  <div id="landing-page">
+    <div class="setup-container">
+      <h1>Stroke by Stroke</h1>
+      <p>Start by choosing a built‑in text or pasting your own.</p>
+
+      <div class="control-group">
+        <label for="builtInContentSelect">Select Built‑in Sheet:</label>
+        <select id="builtInContentSelect">
+          <option value="" disabled selected>-- Loading List --</option>
+        </select>
+      </div>
+
+      <div class="control-group hidden" id="builtInTextSelectGroup">
+        <label for="builtInTextSelect">Select Text:</label>
+        <select id="builtInTextSelect">
+          <option value="" disabled selected>-- Select Topic First --</option>
+        </select>
+      </div>
+
+      <div class="divider">OR</div>
+
+      <div class="control-group">
+        <label for="character-input">Paste Your Own Text:</label>
+        <textarea id="character-input"
+          placeholder="Enter or paste Chinese text. Use 'k' for a new line and 'b' for an empty box."></textarea>
+      </div>
+
+      <button id="generate-button">Generate Writing Sheet</button>
+    </div>
+  </div>
+  <footer id="mobile-footer"></footer>
+
+  <!-- ======================================================= -->
+  <!--                      DISPLAY PAGE                       -->
+  <!-- ======================================================= -->
+  <div id="display-page" class="hidden">
+    <h1 id="page-title">Stroke by Stroke: the Beauty of Chinese Characters!</h1>
+
+    <div class="sticky-container">
+      <div class="button-container">
+        <button id="back-button">New Sheet</button>
+        <button id="start-button">Start</button>
+        <button id="next-button">Next</button>
+        <button id="stop-resume-button">Stop</button>
+        <button id="animate-button">Animate All</button>
+        <button id="quiz-button">Quiz Mode</button>
+        <button id="print-button">Full Page View</button>
+        <button id="refresh-button">Refresh</button>
+      </div>
+
+      <div id="settings-container">
+        <label for="charSize">Size:</label>
+        <input type="number" id="charSize" value="70" min="40" max="150" step="1" />
+        <label for="color">Radical Color:</label>
+        <input type="color" id="color" value="#FF00FF" />
+      </div>
+
+      <!-- Visible only inside print‑preview -->
+      <div id="print-exit-container" class="hidden">
+        <button id="exit-print-button" style="background:#c0392b;font-weight:600;">Exit Full Page View</button>
+      </div>
+    </div>
+
+    <div class="character-grid" id="character-grid"></div>
+    <div id="log-messages-wrapper"><div id="log-messages"></div></div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!--                      VISITOR COUNTER                    -->
+  <!-- ======================================================= -->
+  <footer>
+    <div id="visitor-counter">
+      Welcome! You’re visitor #<span id="pageviews">Loading...</span>
+    </div>
+  </footer>
+
+  <!-- ======================================================= -->
+  <!--                         SCRIPTS                         -->
+  <!-- ======================================================= -->
+  <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script>
+  /* ------------------------------------------------------------------
+     SECTION 0 : global helpers
+  ------------------------------------------------------------------ */
+  const landingPage     = document.getElementById('landing-page');
+  const displayPage     = document.getElementById('display-page');
+  const MASTER_SHEET_ID = "1mc3uJfaRNAca6v0OD9kETNhXnl6VzWEqAuALeyUHuFc";
+
+  const builtInContentSelect     = document.getElementById("builtInContentSelect");
+  const builtInTextSelectGroup   = document.getElementById("builtInTextSelectGroup");
+  const builtInTextSelect        = document.getElementById("builtInTextSelect");
+  const characterInput           = document.getElementById('character-input');
+  const generateButton           = document.getElementById('generate-button');
+
+  const characterGrid            = document.getElementById('character-grid');
+  const pageTitle                = document.getElementById('page-title');
+  let writers        = [];
+  let currentIndex   = 0;
+  let isPaused       = false;
+  let stopAll        = false;
+  let originalText   = "";
+  let lastAnimateAllText = "";
+  let currentSheetContentData = [];
+
+  function displayLog(msg,type){
+    const area=document.getElementById('log-messages');
+    area.innerHTML='';
+    const div=document.createElement('div');
+    div.textContent=msg;
+    div.className=type==='error'?'log-error':type==='success'?'log-success':'log-info';
+    area.appendChild(div);
+  }
+
+  /* ------------------------------------------------------------------
+     SECTION 1 : grid creation & animation helpers
+  ------------------------------------------------------------------ */
+  function createWritersFromText(text){
+    characterGrid.innerHTML='';
+    writers=[];
+    const maxChars = 1000;
+    const finalText = text.slice(0,maxChars);
+    lastAnimateAllText = finalText;
+
+    /* update grid variable */
+    const charSizeVal = document.getElementById('charSize').value;
+    document.documentElement.style.setProperty('--char-size', charSizeVal+'px');
+    const charSize = parseInt(charSizeVal,10);
+
+    const isChineseChar=/[\u4e00-\u9fa5]/;
+
+    for(let i=0;i<finalText.length;i++){
+      const char = finalText[i];
+      const box  = document.createElement('div');
+      box.className='character-box';
+      box.id='char-box-'+i;
+
+      if(char==='k'){ /* newline */
+        box.style.gridColumn='1 / -1';
+        box.style.height='0';
+        box.style.border='none';
+        characterGrid.appendChild(box);
+        writers.push(null);
+      }else if(char==='b'){ /* empty square */
+        characterGrid.appendChild(box);
+        writers.push(null);
+      }else if(isChineseChar.test(char)){
+        characterGrid.appendChild(box);
+        const w=HanziWriter.create(box.id,char,{
+          width:charSize,height:charSize,padding:2,showOutline:true,strokeAnimationSpeed:1,delayBetweenStrokes:200,
+          radicalColor:document.getElementById('color').value
+        });
+        writers.push(w);
+      }else{ /* punctuation or other char */
+        box.style.display='flex';box.style.alignItems='center';box.style.justifyContent='center';
+        box.style.fontSize=(charSize*0.6)+'px';
+        box.textContent=char;
+        characterGrid.appendChild(box);
+        writers.push(null);
+      }
+    }
+    currentIndex=0;isPaused=false;stopAll=false;
+    document.getElementById('start-button').textContent='Start';
+    document.getElementById('stop-resume-button').textContent='Stop';
+    document.getElementById('animate-button').textContent='Animate All';
+  }
+
+  function animateCurrent(){
+    if(!writers[currentIndex])return;
+    writers[currentIndex].animateCharacter({
+      onComplete:()=>displayLog(`Character #${currentIndex+1} animation done.`,'info')
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     SECTION 2 : Google‑Sheet integration
+  ------------------------------------------------------------------ */
+  async function fetchAndParseContentSheet(sheetId){
+    const url=`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0&tqx=out:csv&timestamp=${Date.now()}`;
+    try{
+      const resp=await fetch(url,{cache:"no-store"});
+      if(!resp.ok)throw new Error(`Status ${resp.status}`);
+      const csv=await resp.text();
+      const wb  =XLSX.read(csv,{type:"string"});
+      const data=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:""});
+      return data.slice(1).map(r=>({title:String(r[0]||'').trim(),text:String(r[1]||'').trim()}));
+    }catch(e){
+      alert(`Error loading sheet content: ${e.message}`);
+      return null;
+    }
+  }
+
+  function populateTextDropdown(arr){
+    builtInTextSelect.innerHTML='<option value="" disabled selected>-- Select Text --</option>';
+    if(arr&&arr.length){
+      arr.forEach((item,idx)=>{
+        if(item.title){
+          const opt=document.createElement('option');
+          opt.value=idx;
+          opt.textContent=item.title.substring(0,80);
+          builtInTextSelect.appendChild(opt);
+        }
+      });
+      builtInTextSelectGroup.classList.remove('hidden');
+    }
+  }
+
+  async function loadBuiltInList(){
+    const url=`https://docs.google.com/spreadsheets/d/${MASTER_SHEET_ID}/export?format=csv&gid=0&tqx=out:csv&timestamp=${Date.now()}`;
+    try{
+      const resp=await fetch(url,{cache:"no-store"});
+      if(!resp.ok)throw new Error(`Status ${resp.status}`);
+      const csv=await resp.text();
+      const wb = XLSX.read(csv,{type:"string"});
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:""});
+      builtInContentSelect.innerHTML='<option value="" disabled selected>-- Select Topic/Sheet --</option>';
+      rows.slice(1).forEach(r=>{
+        if(r&&r[0]&&r[1]){
+          const opt=document.createElement('option');
+          opt.value=String(r[1]).trim();
+          opt.textContent=String(r[0]).trim();
+          builtInContentSelect.appendChild(opt);
+        }
+      });
+    }catch(e){alert(`Error loading master list: ${e.message}`);}
+  }
+
+  /* ------------------------------------------------------------------
+     SECTION 3 : Event bindings — Landing page
+  ------------------------------------------------------------------ */
+  generateButton.addEventListener('click',()=>{
+    originalText=characterInput.value.trim();
+    if(!originalText){alert("Please select a built‑in text or enter your own before generating.");return;}
+    createWritersFromText(originalText);
+    displayLog('Sheet generated. Ready to start!','success');
+    landingPage.classList.add('hidden');
+    displayPage.classList.remove('hidden');
+  });
+
+  builtInContentSelect.addEventListener('change',async e=>{
+    const sheetId=e.target.value;
+    if(!sheetId)return;
+    builtInTextSelect.innerHTML='<option value="" disabled selected>-- Loading Texts... --</option>';
+    characterInput.value="";
+    currentSheetContentData=await fetchAndParseContentSheet(sheetId)||[];
+    populateTextDropdown(currentSheetContentData);
+  });
+
+  builtInTextSelect.addEventListener('change',e=>{
+    const idx=parseInt(e.target.value,10);
+    if(!isNaN(idx)&&currentSheetContentData[idx]){
+      characterInput.value=currentSheetContentData[idx].text;
+    }
+  });
+
+  /* ------------------------------------------------------------------
+     SECTION 4 : Event bindings — Display page controls
+  ------------------------------------------------------------------ */
+  document.getElementById('back-button').addEventListener('click',()=>{
+    displayPage.classList.add('hidden');
+    landingPage.classList.remove('hidden');
+    characterGrid.innerHTML='';writers=[];
+  });
+
+  document.getElementById('refresh-button').addEventListener('click',()=>{
+    if(originalText){displayLog("Refreshing with new settings...",'info');createWritersFromText(originalText);}
+  });
+  document.getElementById('charSize').addEventListener('input',()=>{if(writers.length)createWritersFromText(originalText);});
+  document.getElementById('color').addEventListener('input',()=>{if(writers.length)createWritersFromText(originalText);});
+
+  /* --- start / prev --- */
+  document.getElementById('start-button').addEventListener('click',function(){
+    if(writers.length===0)return displayLog("No characters to animate.",'error');
+    if(this.textContent==='Start'){
+      currentIndex=-1;
+      do{currentIndex++;}while(writers[currentIndex]===null&&currentIndex<writers.length);
+      if(currentIndex<writers.length){
+        displayLog("Starting from character #1",'info');
+        animateCurrent();
+        this.textContent='Previous';
+      }
+    }else{
+      do{currentIndex--;}while(writers[currentIndex]===null&&currentIndex>-1);
+      if(currentIndex>-1){
+        displayLog(`Moving to character #${currentIndex+1}`,'info');
+        animateCurrent();
+      }else{currentIndex=0;}
+    }
+  });
+
+  /* --- next --- */
+  document.getElementById('next-button').addEventListener('click',()=>{
+    if(writers.length===0)return displayLog("No characters to animate.",'error');
+    if(currentIndex<writers.length-1){
+      do{currentIndex++;}while(writers[currentIndex]===null&&currentIndex<writers.length-1);
+      if(writers[currentIndex]){displayLog(`Moving to character #${currentIndex+1}`,'info');animateCurrent();}
+    }
+  });
+
+  /* --- stop/resume --- */
+  document.getElementById('stop-resume-button').addEventListener('click',function(){
+    const w=writers[currentIndex];
+    if(!w)return displayLog("No character selected to stop/resume.",'error');
+    if(!isPaused){w.pauseAnimation();isPaused=true;this.textContent='Resume';displayLog("Paused animation.",'info');}
+    else{w.resumeAnimation();isPaused=false;this.textContent='Stop';displayLog("Resumed animation.",'info');}
+  });
+
+  /* --- animate all / stop all --- */
+  document.getElementById('animate-button').addEventListener('click',function(){
+    if(this.textContent==='Animate All'){
+      if(writers.length===0)return displayLog("No characters to animate.",'error');
+      stopAll=false;displayLog("Starting sequential animation!",'info');
+      let idx=0;
+      const animateNext=()=>{
+        if(stopAll){displayLog("All animations stopped!",'info');return;}
+        if(idx>=writers.length){displayLog("All characters animated!",'success');return;}
+        const w=writers[idx];
+        if(!w){idx++;animateNext();return;}
+        w.animateCharacter({onComplete:()=>{idx++;animateNext();}});
+      };
+      animateNext();
+      this.textContent='Stop All';
+    }else{
+      stopAll=true;
+      displayLog("Stopping all animations and reverting to initial state.",'info');
+      createWritersFromText(lastAnimateAllText);
+      this.textContent='Animate All';
+    }
+  });
+
+  /* --- quiz all --- */
+  document.getElementById('quiz-button').addEventListener('click',()=>{
+    if(writers.length===0)return displayLog("No characters to quiz.",'error');
+    displayLog("Starting quiz mode for all characters. Good luck!",'info');
+    writers.forEach((w,idx)=>{
+      if(!w)return;
+      w.quiz({
+        onMistake:sd=>displayLog(`Char #${idx+1}: Mistake on stroke ${sd.strokeNum+1}`,'error'),
+        onCorrectStroke:sd=>displayLog(`Char #${idx+1}: Correct stroke ${sd.strokeNum+1}`,'success'),
+        onComplete:sum=>displayLog(`Char #${idx+1} completed with ${sum.totalMistakes} mistakes.`,'info')
+      });
+    });
+  });
+
+  /* --- print / exit print --- */
+  document.getElementById('print-button').addEventListener('click',()=>{
+    document.body.classList.add('print-preview');
+    displayLog("Opening print dialog...","info");
+    window.print();
+  });
+  document.getElementById('exit-print-button').addEventListener('click',()=>{
+    document.body.classList.remove('print-preview');
+    displayLog("Exited full page view.","info");
+  });
+  window.addEventListener('afterprint',()=>{
+    document.body.classList.remove('print-preview');
+    displayLog("Exited full page view.","info");
+  });
+
+  /* ------------------------------------------------------------------
+     SECTION 5 : visitor counter fetch
+  ------------------------------------------------------------------ */
+  document.addEventListener('DOMContentLoaded',()=>{
+    loadBuiltInList(); /* landing page sheet list */
+    const pv=document.getElementById('pageviews');
+    if(pv){
+      const uri=location.pathname.replace(/\/$/,'');
+      const url=`https://linsnotes.goatcounter.com/counter/${encodeURIComponent(uri)}.json`;
+      fetch(url).then(r=>r.json()).then(d=>{
+        const count=d.count.replace(/\s/g,'');
+        pv.innerText=new Intl.NumberFormat().format(count);
+      }).catch(()=>{pv.innerText='1';});
+    }
+  });
+  </script>
+</body>
+</html>
