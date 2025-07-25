@@ -679,11 +679,24 @@
         updatePrintStyle(cols);
     });
 
-    /* 3‑C – respond when the user picks a value from the dropdown */
+    /* 3‑C – dropdown sets print columns **and** adjusts char size */
     document.getElementById('printColsSelect').addEventListener('change', function () {
       const cols = parseInt(this.value, 10);
-      updatePrintStyle(cols);                  // reuse the same helper
+
+      // 1) update the @media print rule
+      updatePrintStyle(cols);
+
+      // 2) map preferred char‑size for each option
+      const sizeMap = { 8: 70, 10: 57, 12: 45, 14: 35 };
+      const newSize  = sizeMap[cols] || 70;                 // fallback = 70px
+
+      const sizeInput = document.getElementById('charSize');
+      if (parseInt(sizeInput.value, 10) !== newSize) {
+        sizeInput.value = newSize;                          // set field visibly
+        sizeInput.dispatchEvent(new Event('input'));        // reuse existing logic
+      }
     });
+
 
 
 
