@@ -625,28 +625,32 @@
 
         /*  ------  Custom Sheet loader  ------  */
     document.getElementById('loadCustomSheetButton')
-            .addEventListener('click', async () => {
-              const sheetId = document.getElementById('customSheetId').value.trim();
-              if (!sheetId) {
-                alert('Please paste a Sheet ID.');
-                return;
-              }
+      .addEventListener('click', async () => {
+        const sheetId = document.getElementById('customSheetId').value.trim();
+        if (!sheetId) { alert('Please paste a Sheet ID.'); return; }
 
-              // clear any previous state
-              builtInTextSelect.innerHTML =
-                  '<option value="" disabled selected>-- Loading Texts... --</option>';
-              characterInput.value = '';
+        // hide the (old) dropdown immediately
+        builtInTextSelectGroup.classList.add('hidden');
 
-              const data = await fetchAndParseContentSheet(sheetId);
-              if (!data || data.length === 0) {
-                alert('Could not read that sheet. Please ensure your sheet ID is correct.');
-                return;
-              }
+        // show a loading option
+        builtInTextSelect.innerHTML =
+          '<option value="" disabled selected>-- Loading Texts... --</option>';
+        characterInput.value = '';
 
-              currentSheetContentData = data;
-              populateTextDropdown(data);          // re‑uses existing dropdown
-              displayLog('Custom sheet loaded!', 'success');
-            });
+        const data = await fetchAndParseContentSheet(sheetId);
+        if (!data || data.length === 0) {
+          alert('Could not read that sheet. Please ensure your sheet ID is correct.');
+          return;
+        }
+
+        currentSheetContentData = data;
+        populateTextDropdown(data);
+        displayLog('Custom sheet loaded!', 'success');
+
+        // (optional) clear built‑in selector
+        builtInContentSelect.selectedIndex = 0;
+      });
+
 
 
 
