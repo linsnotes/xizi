@@ -579,6 +579,9 @@
         document.getElementById('start-button').textContent = 'Start';
         document.getElementById('stop-resume-button').textContent = 'Stop';
         document.getElementById('animate-button').textContent = 'Animate All';
+        // ⇢ NEW: drop page‑break markers for the current column setting
+        const cols = parseInt(document.getElementById('printColsSelect').value, 10);
+        insertPageBreakMarkers(cols);
     }
     
     function animateCurrent() {
@@ -726,15 +729,6 @@
       });
 
 
-
-
-
-
-
-
-
-
-
     
     builtInTextSelect.addEventListener("change", (event) => {
         const selectedIndex = parseInt(event.target.value, 10);
@@ -827,12 +821,14 @@
         const size = parseInt(this.value, 10);
         const cols = getPrintColumnsFromSize(size);
         updatePrintStyle(cols);
+        insertPageBreakMarkers(cols);
     });
 
     /* 3‑B  – respond when the user types into “Print Columns” */
     document.getElementById('printColumns').addEventListener('input', function () {
         const cols = Math.min(15, Math.max(8, parseInt(this.value, 10) || 8));
         updatePrintStyle(cols);
+        insertPageBreakMarkers(cols);
     });
 
     /* 3‑C – dropdown sets print columns **and** adjusts char size */
@@ -841,7 +837,7 @@
 
       // 1) update the @media print rule
       updatePrintStyle(cols);
-
+      insertPageBreakMarkers(cols);
       // 2) map preferred char‑size for each option
       const sizeMap = { 8: 70, 10: 57, 12: 45, 14: 35 };
       const newSize  = sizeMap[cols] || 70;                 // fallback = 70px
