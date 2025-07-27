@@ -745,6 +745,13 @@
         return 8; // fallback
     }
 
+    // columns → rows you want on every printed page
+    const rowMap = {
+      8: 11,
+      10: 14,
+      12: 17,
+      14: 20
+    };
     // utility: writes/updates a single <style id="dynamic-print-style">
     function updatePrintStyle(columns) {
         const rows = rowMap[columns] || 11;          // fallback just in case
@@ -775,13 +782,7 @@
 
     // Also sync char size based on dropdown
     const sizeMap = { 8: 70, 10: 57, 12: 45, 14: 35 };
-        // columns → rows you want on every printed page
-    const rowMap = {
-      8: 11,
-      10: 14,
-      12: 17,
-      14: 20
-    };
+
     
     const newSize = sizeMap[defaultCols] || 70;
     const sizeInput = document.getElementById('charSize');
