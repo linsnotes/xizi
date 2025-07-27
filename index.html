@@ -312,7 +312,10 @@
         }
     }
 
-
+    /* CSS */
+    .print-page-break {       /* keeps normal screen layout untouched */
+        display: none;
+    }
 
     /* Final styles for the actual printed page */
     @media print {
@@ -367,6 +370,15 @@
         .character-box[style*="height: 0"] {
             display: none !important;
         }
+
+
+        .print-page-break {
+            display: block;
+            break-after: page;           /* Firefox/Chrome */
+            page-break-after: always;    /* legacy */
+        }
+
+      
     }
   </style>
 </head>
@@ -610,6 +622,26 @@
         }
     }
 
+    function insertPageBreakMarkers(columns) {
+        const rows  = rowMap[columns] || 11;
+        const perPage = columns * rows;
+
+        // Remove any old markers
+        [...document.querySelectorAll('.print-page-break')].forEach(el => el.remove());
+
+        const grid = document.getElementById('character-grid');
+        const cells = [...grid.children];
+
+        // Walk forwards so indices stay stable while inserting
+        for (let i = perPage; i < cells.length; i += perPage) {
+            const br = document.createElement('div');
+            br.className = 'print-page-break';
+            grid.insertBefore(br, cells[i]);
+        }
+    }
+
+
+    
     async function loadBuiltInList() {
         const listUrl = `https://docs.google.com/spreadsheets/d/${MASTER_SHEET_ID}/export?format=csv&gid=0&tqx=out:csv×tamp=${new Date().getTime()}`;
         try {
