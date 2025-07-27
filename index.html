@@ -480,6 +480,7 @@
   <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script>
+
     // --- Page Section Elements ---
     const landingPage = document.getElementById('landing-page');
     const displayPage = document.getElementById('display-page');
@@ -746,20 +747,27 @@
 
     // utility: writes/updates a single <style id="dynamic-print-style">
     function updatePrintStyle(columns) {
+        const rows = rowMap[columns] || 11;          // fallback just in case
+
         let style = document.getElementById('dynamic-print-style');
         if (!style) {
             style = document.createElement('style');
             style.id = 'dynamic-print-style';
             document.head.appendChild(style);
         }
+
         style.textContent = `
             @media print {
                 .character-grid {
                     grid-template-columns: repeat(${columns}, 1fr) !important;
+                    grid-template-rows: repeat(${rows}, var(--char-size)) !important;
+                    max-height: calc(${rows} * var(--char-size) + (${rows - 1} * 15px));
+                    overflow: hidden;                 /* hide anything that spills */
                 }
             }
         `;
     }
+
 
 
     const defaultCols = parseInt(document.getElementById('printColsSelect').value, 10);
@@ -767,6 +775,14 @@
 
     // Also sync char size based on dropdown
     const sizeMap = { 8: 70, 10: 57, 12: 45, 14: 35 };
+        // columns → rows you want on every printed page
+    const rowMap = {
+      8: 11,
+      10: 14,
+      12: 17,
+      14: 20
+    };
+    
     const newSize = sizeMap[defaultCols] || 70;
     const sizeInput = document.getElementById('charSize');
     sizeInput.value = newSize;
