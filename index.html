@@ -312,10 +312,6 @@
         }
     }
 
-    /* CSS */
-    .print-page-break {       /* keeps normal screen layout untouched */
-        display: none;
-    }
 
     /* Final styles for the actual printed page */
     @media print {
@@ -369,14 +365,6 @@
             display: none !important;
         }
 
-
-        .print-page-break {
-            display: block;
-            break-after: page;           /* Firefox/Chrome */
-            page-break-after: always;    /* legacy */
-        }
-
-      
     }
   </style>
 </head>
@@ -579,7 +567,6 @@
         document.getElementById('animate-button').textContent = 'Animate All';
         // ⇢ NEW: drop page‑break markers for the current column setting
         const cols = parseInt(document.getElementById('printColsSelect').value, 10);
-        insertPageBreakMarkers(cols);
     }
     
     function animateCurrent() {
@@ -620,24 +607,6 @@
             });
             builtInTextSelectGroup.classList.remove("hidden");
             builtInTextSelect.disabled = false;
-        }
-    }
-
-    function insertPageBreakMarkers(columns) {
-        const rows  = rowMap[columns] || 11;
-        const perPage = columns * rows;
-
-        // Remove any old markers
-        [...document.querySelectorAll('.print-page-break')].forEach(el => el.remove());
-
-        const grid = document.getElementById('character-grid');
-        const cells = [...grid.children];
-
-        // Walk forwards so indices stay stable while inserting
-        for (let i = perPage; i < cells.length; i += perPage) {
-            const br = document.createElement('div');
-            br.className = 'print-page-break';
-            grid.insertBefore(br, cells[i]);
         }
     }
 
@@ -819,14 +788,12 @@
         const size = parseInt(this.value, 10);
         const cols = getPrintColumnsFromSize(size);
         updatePrintStyle(cols);
-        insertPageBreakMarkers(cols);
     });
 
     /* 3‑B  – respond when the user types into “Print Columns” */
     document.getElementById('printColumns').addEventListener('input', function () {
         const cols = Math.min(15, Math.max(8, parseInt(this.value, 10) || 8));
         updatePrintStyle(cols);
-        insertPageBreakMarkers(cols);
     });
 
     /* 3‑C – dropdown sets print columns **and** adjusts char size */
@@ -835,7 +802,6 @@
 
       // 1) update the @media print rule
       updatePrintStyle(cols);
-      insertPageBreakMarkers(cols);
       // 2) map preferred char‑size for each option
       const sizeMap = { 8: 70, 10: 57, 12: 45, 14: 35 };
       const newSize  = sizeMap[cols] || 70;                 // fallback = 70px
